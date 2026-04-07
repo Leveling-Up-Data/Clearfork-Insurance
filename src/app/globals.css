@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+:root {
+  --green-primary: #8BC53F;
+  --green-dark: #6FA332;
+  --green-light: #EBF5DC;
+  --navy: #101517;
+  --navy-light: #1E2A35;
+  --blue-accent: #2B5F9E;
+  --ink: #1A1B25;
+  --slate: #6B7280;
+  --gray-700: #374151;
+  --mist: #E5E7EB;
+  --white: #FFFFFF;
+  --bg: #FFFFFF;
+  --border: hsl(210 40% 92%);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --color-brand: var(--green-primary);
+  --color-brand-dark: var(--green-dark);
+  --color-brand-light: var(--green-light);
+  --color-navy: var(--navy);
+  --color-navy-light: var(--navy-light);
+  --color-mist: var(--mist);
+  --color-slate: var(--slate);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.prose p {
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+  color: var(--gray-700);
+}
+
+.prose a {
+  color: var(--blue-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  color: var(--green-dark);
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+  color: var(--gray-700);
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--green-primary);
+  padding: 0.75rem 1rem;
+  background: var(--green-light);
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 1.25rem;
+  font-style: italic;
+  color: var(--slate);
+}
+
+.prose code {
+  background: var(--mist);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background: var(--navy);
+  color: #e5e7eb;
+  padding: 1.25rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.prose img {
+  border-radius: 12px;
+  margin: 1.5rem 0;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--mist);
+  margin: 2.5rem 0;
+}
