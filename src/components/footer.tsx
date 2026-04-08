@@ -66,7 +66,8 @@ export function Footer() {
                 alt="SIG Clearfork Insurance Group"
                 width={200}
                 height={51}
-                className="h-12 w-auto brightness-0 invert sm:h-14"
+                style={{ width: "auto", height: undefined }}
+                className="h-12 brightness-0 invert sm:h-14"
               />
             </Link>
             <h3 className="mb-3 text-lg font-semibold">Clearfork Insurance Agency</h3>

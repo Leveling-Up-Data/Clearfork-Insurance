@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 const contactSchema = z.object({
   firstName: z.string().min(1),
@@ -8,14 +9,30 @@ const contactSchema = z.object({
   phone: z.string().optional(),
   insuranceType: z.string().optional(),
   message: z.string().optional(),
+  recaptchaToken: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const data = contactSchema.parse(body);
-    // In production, this would send to a CRM/email. For now, log and return success.
-    console.log("[contact] Submission:", data);
+
+    if (data.recaptchaToken) {
+      const captcha = await verifyRecaptcha(data.recaptchaToken);
+      if (!captcha.success || captcha.score < 0.5) {
+        return NextResponse.json(
+          { message: "reCAPTCHA verification failed" },
+          { status: 400 },
+        );
+      }
+    }
+
+    console.log("[contact] Submission:", {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      insuranceType: data.insuranceType,
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {

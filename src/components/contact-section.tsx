@@ -28,6 +28,24 @@ export default function ContactSection() {
     setError(null);
     setSubmitting(true);
     const form = e.currentTarget;
+
+    let recaptchaToken: string | undefined;
+    const win = window as unknown as {
+      grecaptcha?: {
+        execute: (key: string, opts: { action: string }) => Promise<string>;
+      };
+    };
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    if (win.grecaptcha && siteKey) {
+      try {
+        recaptchaToken = await win.grecaptcha.execute(siteKey, {
+          action: "contact_submit",
+        });
+      } catch {
+        /* reCAPTCHA may not be loaded yet */
+      }
+    }
+
     const data = {
       firstName: (form.elements.namedItem("firstName") as HTMLInputElement).value,
       lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value,
@@ -35,6 +53,7 @@ export default function ContactSection() {
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       insuranceType: (form.elements.namedItem("insuranceType") as HTMLSelectElement).value,
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+      recaptchaToken,
     };
     try {
       const res = await fetch("/api/contact", {
@@ -42,8 +61,7 @@ export default function ContactSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const json = (await res.json()) as { ok?: boolean };
-      if (!res.ok || !json.ok) {
+      if (!res.ok) {
         setError("Something went wrong. Please call us or try again.");
         return;
       }
