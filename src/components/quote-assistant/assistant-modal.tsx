@@ -162,6 +162,18 @@ export const QuoteAssistantModal = forwardRef<
     setMessages((prev) => [...prev, message]);
   }, []);
 
+  const runAssistantSubmit = useCallback(() => {
+    if (!onSubmit) return;
+    appendMessage({ role: "bot", text: "Submitting your quote request..." });
+    onSubmit();
+    setTimeout(() => {
+      appendMessage({
+        role: "bot",
+        text: "Your quote request has been submitted! We'll review your information and get back to you shortly.",
+      });
+    }, 400);
+  }, [appendMessage, onSubmit]);
+
   const getMissingRequiredFields = (): Array<keyof QuoteFormValues> => {
     if (!form) return REQUIRED_FIELD_KEYS;
     try {
@@ -254,24 +266,23 @@ export const QuoteAssistantModal = forwardRef<
           .join(", ");
         appendMessage({ role: "bot", text: reply || `Got it! I've filled in: ${filledFields}.` });
         pendingFieldRef.current = null;
-        setTimeout(() => askNextQuestion(), 400);
+        if (!submit) setTimeout(() => askNextQuestion(), 400);
       } else if (reply) {
         appendMessage({ role: "bot", text: reply });
-        if (!isQuestion) {
+        if (!isQuestion && !submit) {
           pendingFieldRef.current = null;
           setTimeout(() => askNextQuestion(), 400);
         }
       }
-      if (submit && onSubmit) {
-        appendMessage({ role: "bot", text: "Submitting your quote request..." });
-        onSubmit();
+      if (submit) {
+        runAssistantSubmit();
       }
     } catch {
       appendMessage({ role: "bot", text: "I encountered an error. Please try again or fill in the fields manually." });
     } finally {
       setIsLoading(false);
     }
-  }, [form, appendMessage, onSubmit]);
+  }, [form, appendMessage, runAssistantSubmit]);
 
   const handleDocumentUpload = async (file: File) => {
     setIsUploading(true);
@@ -363,8 +374,7 @@ export const QuoteAssistantModal = forwardRef<
         });
         setTimeout(() => askNextQuestion(), 500);
       } else {
-        appendMessage({ role: "bot", text: "Submitting your quote request..." });
-        if (onSubmit) onSubmit();
+        runAssistantSubmit();
       }
       return;
     }

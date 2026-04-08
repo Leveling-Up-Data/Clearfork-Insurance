@@ -320,8 +320,15 @@ export default function GetAQuotePage() {
     }
   };
 
+  /** Assistant-only: show success without persisting (backend storage not wired yet). */
   const handleAssistantSubmit = () => {
-    form.handleSubmit(onSubmit)();
+    toast({
+      title: "Quote request submitted!",
+      description:
+        "We'll review your information and get back to you shortly.",
+    });
+    form.reset(defaultQuoteValues);
+    setUploadedFile(null);
   };
 
   const fieldTooltips: Partial<Record<keyof QuoteFormValues, string>> = {
