@@ -854,7 +854,12 @@ export default function GetAQuotePage() {
                     </Button>
                     <p className="text-xs text-muted-foreground mt-3">
                       Your information is secure and will only be used to
-                      provide your quote.
+                      provide your quote. This site is protected by reCAPTCHA
+                      and the Google{" "}
+                      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a>{" "}
+                      and{" "}
+                      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a>{" "}
+                      apply.
                     </p>
                   </div>
                 </form>

@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 
 const MAP_EMBED =
-  "https://maps.google.com/maps?q=992+Winscott+Rd+Suite+B,+Benbrook,+TX+76126&z=14&output=embed";
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3359.0!2d-97.4530557!3d32.6774231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864e0d58913d6ba9%3A0xd74c505d2f0140c5!2sSIG%20Clearfork%20Insurance%20Group!5e0!3m2!1sen!2sus!4v1";
 
 export default function ContactSection() {
   return (
