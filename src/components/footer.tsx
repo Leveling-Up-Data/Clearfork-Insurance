@@ -21,7 +21,7 @@ const SERVICES = [
 const ABOUT = [
   { label: "Our Story", href: "/our-story" },
   { label: "Meet Our Team", href: "/about" },
-  { label: "Blog", href: "/blogs" },
+  { label: "Blog", href: "/blog" },
 ] as const;
 
 const SOCIAL = [

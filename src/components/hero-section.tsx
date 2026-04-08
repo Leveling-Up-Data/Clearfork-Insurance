@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
 import { cn } from "@/lib/utils";
 
@@ -46,13 +47,12 @@ export default function HeroSection() {
               Clearfork Insurance Group to protect what matters most.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={() => scrollToId("contact")}
+              <Link
+                href="/get-a-quote"
                 className="rounded-full bg-white px-8 py-3 text-sm font-semibold text-[var(--navy-dark)] shadow-md transition hover:bg-white/95"
               >
                 Get A Quote Today
-              </button>
+              </Link>
               <button
                 type="button"
                 onClick={() => scrollToId("services")}

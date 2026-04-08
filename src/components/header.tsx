@@ -23,7 +23,7 @@ const ABOUT_LINKS = [
 
 export function Header() {
   const pathname = usePathname();
-  const isBlogPost = /^\/blogs\/.+/.test(pathname ?? "");
+  const isBlogPost = /^\/blog\/.+/.test(pathname ?? "");
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -67,7 +67,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
       <PageShell
         className={cn(
-          "flex items-center justify-between gap-4 py-6 lg:gap-8 lg:py-[60px]",
+          "flex items-center justify-between gap-4 py-4 lg:gap-8 lg:py-5",
         )}
       >
         <Link href="/" className="relative z-10 shrink-0">
@@ -77,7 +77,7 @@ export function Header() {
             width={280}
             height={71}
             priority
-            className="h-16 sm:h-20 lg:h-[71px]"
+            className="h-14 sm:h-[60px] lg:h-[56px]"
             style={{ width: "auto", height: undefined }}
           />
         </Link>
@@ -171,7 +171,7 @@ export function Header() {
             )}
           </div>
 
-          <Link href="/blogs" className={navLinkClass}>
+          <Link href="/blog" className={navLinkClass}>
             Blog
           </Link>
           <Link href="/get-a-quote" className={cn(navLinkClass, "font-semibold")}>
@@ -280,7 +280,7 @@ export function Header() {
               )}
             </div>
 
-            <Link href="/blogs" className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+            <Link href="/blog" className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
               Blog
             </Link>
             <Link

@@ -32,7 +32,7 @@ export default function AboutSection() {
             </p>
             <Link
               href="/our-story"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#8BC53F] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#6fa332]"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-md transition-colors hover:bg-primary/90"
             >
               Our Story
               <ArrowRight className="h-4 w-4" aria-hidden />

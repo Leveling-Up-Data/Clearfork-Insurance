@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts } from "@/lib/posts";
+import { BLOG_POSTS_DETAIL } from "@/data/blog-posts";
 
 const BASE = "https://clearforkinsurance.com";
 
@@ -15,13 +15,11 @@ const STATIC_PAGES = [
   { path: "/get-a-quote", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/videos", changeFrequency: "monthly" as const, priority: 0.6 },
   { path: "/podcast", changeFrequency: "monthly" as const, priority: 0.6 },
-  { path: "/blogs", changeFrequency: "weekly" as const, priority: 0.7 },
+  { path: "/blog", changeFrequency: "weekly" as const, priority: 0.7 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.3 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const posts = getAllPosts();
-
   const staticEntries = STATIC_PAGES.map((p) => ({
     url: `${BASE}${p.path}`,
     lastModified: new Date(),
@@ -29,12 +27,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: p.priority,
   }));
 
-  const blogEntries = posts.map((post) => ({
-    url: `${BASE}/blogs/${post.slug}`,
-    lastModified: new Date(post.date),
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  const blogEntries = BLOG_POSTS_DETAIL.map((post) => {
+    const parsed = Date.parse(post.date);
+    return {
+      url: `${BASE}/blog/${post.slug}`,
+      lastModified: Number.isNaN(parsed) ? new Date() : new Date(parsed),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    };
+  });
 
   return [...staticEntries, ...blogEntries];
 }

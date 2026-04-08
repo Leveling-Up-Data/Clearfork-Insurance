@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { geminiModelCandidates } from "@/lib/gemini-models";
 import {
   CONVERSATION_FLOW,
   QUOTE_FIELD_LABELS,
@@ -10,8 +11,6 @@ import {
 const STARFISH_AGENT_URL =
   process.env.STARFISH_AGENT_URL ??
   "https://umesyaxnkvnpnyhvcopy.supabase.co/functions/v1/starfish-agent";
-
-const GEMINI_MODEL = "gemini-2.0-flash";
 
 const QUOTE_KEYS = quoteFormSchema.keyof().options;
 
@@ -140,16 +139,30 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const userPayload = `Current form state (JSON):\n${JSON.stringify(currentForm, null, 2)}\n\nConversation order hint:\n${CONVERSATION_FLOW.map((s) => `${s.key}: ${s.question}`).join("\n")}\n\nUser message:\n${userMessage}`;
 
-    const result = await model.generateContent({
-      systemInstruction: FORM_FILL_SYSTEM_PROMPT,
-      contents: [{ role: "user", parts: [{ text: userPayload }] }],
-    });
+    let text = "";
+    let lastGeminiError: unknown;
+    for (const modelName of geminiModelCandidates()) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent({
+          systemInstruction: FORM_FILL_SYSTEM_PROMPT,
+          contents: [{ role: "user", parts: [{ text: userPayload }] }],
+        });
+        text = result.response.text();
+        break;
+      } catch (e) {
+        lastGeminiError = e;
+        console.warn(`[quote-assistant] model ${modelName} failed:`, e);
+      }
+    }
 
-    const text = result.response.text();
+    if (!text) {
+      console.error("[quote-assistant] all Gemini models failed:", lastGeminiError);
+      return NextResponse.json({ message: "An error occurred." }, { status: 500 });
+    }
     const parsed = parseAssistantJson(text);
 
     if (!parsed) {

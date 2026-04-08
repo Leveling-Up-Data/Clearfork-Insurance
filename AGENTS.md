@@ -39,9 +39,9 @@ clearfork-insurance/
     cyber-insurance/              # Cyber insurance
     videos/page.tsx               # Video gallery (YouTube embeds)
     podcast/page.tsx              # Podcast page
-    blogs/page.tsx                # Blog index
-    blogs/[slug]/page.tsx         # Blog post (MDX)
-    blogs/rss.xml/route.ts        # RSS feed
+    blog/page.tsx                 # Blog index (/blog)
+    blog/[slug]/page.tsx          # Blog post (MDX)
+    blog/rss.xml/route.ts         # RSS feed
     privacy/page.tsx              # Privacy policy
     sitemap.ts                    # Dynamic sitemap
     robots.ts                     # robots.txt
@@ -151,7 +151,7 @@ gcloud run deploy clearfork-insurance \
 - BlogPosting schemas on blog posts
 - BreadcrumbList schemas on all interior pages
 - Dynamic sitemap.xml and robots.txt
-- RSS feed at /blogs/rss.xml
+- RSS feed at /blog/rss.xml (permanent redirects from `/blogs` and `/blogs/*`)
 - Per-page metadata with Open Graph and Twitter cards
 - GA4 via NEXT_PUBLIC_GA_ID env var
 

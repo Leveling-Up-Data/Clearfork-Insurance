@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Bot, Loader2, Send, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ChatRole = "user" | "bot";
@@ -36,6 +37,7 @@ function fallbackReply(text: string): string | null {
 }
 
 export function Chatbot() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -114,6 +116,10 @@ export function Chatbot() {
     },
     [loading, scrollToBottom],
   );
+
+  if (pathname === "/get-a-quote") {
+    return null;
+  }
 
   return (
     <>
