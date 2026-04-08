@@ -1,0 +1,90 @@
+import { z } from "zod";
+
+export const quoteFormSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  maritalStatus: z.string().min(1, "Marital status is required"),
+  gender: z.string().min(1, "Gender is required"),
+  streetAddress: z.string().min(1, "Street address is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(5, "Valid zip code is required"),
+  phoneNumber: z.string().min(10, "Valid phone number is required"),
+  emailAddress: z.string().email("Valid email is required"),
+  driverLicenseNumber: z.string().min(1, "Driver license number is required"),
+
+  canReceiveTexts: z.boolean().optional(),
+  socialSecurityNumber: z.string().optional(),
+  additionalDriverFirstName: z.string().optional(),
+  additionalDriverLastName: z.string().optional(),
+  additionalDriverDOB: z.string().optional(),
+  additionalDriverLicense: z.string().optional(),
+  vinNumber: z.string().optional(),
+  vehicleUse: z.string().optional(),
+  estimatedAnnualMileage: z.string().optional(),
+  occupation: z.string().optional(),
+  militaryService: z.string().optional(),
+  isStudent: z.boolean().optional(),
+});
+
+export type QuoteFormData = z.infer<typeof quoteFormSchema>;
+export type QuoteFormValues = QuoteFormData;
+
+export const QUOTE_FIELD_LABELS: Record<keyof QuoteFormData, string> = {
+  firstName: "First Name",
+  lastName: "Last Name",
+  dateOfBirth: "Date of Birth",
+  maritalStatus: "Marital Status",
+  gender: "Gender",
+  streetAddress: "Street Address",
+  state: "State",
+  zipCode: "Zip Code",
+  phoneNumber: "Phone Number",
+  emailAddress: "Email Address",
+  driverLicenseNumber: "Driver License Number",
+  canReceiveTexts: "Can Receive Texts",
+  socialSecurityNumber: "Social Security Number",
+  additionalDriverFirstName: "Additional Driver First Name",
+  additionalDriverLastName: "Additional Driver Last Name",
+  additionalDriverDOB: "Additional Driver Date of Birth",
+  additionalDriverLicense: "Additional Driver License Number",
+  vinNumber: "VIN Number",
+  vehicleUse: "Vehicle Use",
+  estimatedAnnualMileage: "Estimated Annual Mileage",
+  occupation: "Occupation",
+  militaryService: "Military Service",
+  isStudent: "Full-Time Student",
+};
+
+export const CONVERSATION_FLOW: { key: keyof QuoteFormData; question: string }[] = [
+  { key: "firstName", question: "What is your first name?" },
+  { key: "lastName", question: "What is your last name?" },
+  { key: "dateOfBirth", question: "What is your date of birth?" },
+  { key: "maritalStatus", question: "What is your marital status?" },
+  { key: "gender", question: "What is your gender?" },
+  { key: "streetAddress", question: "What is your street address?" },
+  { key: "state", question: "What state do you live in?" },
+  { key: "zipCode", question: "What is your zip code?" },
+  { key: "phoneNumber", question: "What is the best phone number to reach you?" },
+  { key: "emailAddress", question: "What is your email address?" },
+  { key: "driverLicenseNumber", question: "What is your driver license number?" },
+  { key: "vinNumber", question: "What is the VIN of your vehicle? (optional)" },
+  { key: "vehicleUse", question: "How do you primarily use your vehicle?" },
+  { key: "estimatedAnnualMileage", question: "What is your estimated annual mileage?" },
+  { key: "occupation", question: "What is your occupation?" },
+  { key: "militaryService", question: "Do you have any military service?" },
+  { key: "isStudent", question: "Are you a full-time student?" },
+];
+
+export const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+  "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
+  "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+  "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+  "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+  "New Hampshire", "New Jersey", "New Mexico", "New York",
+  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+  "West Virginia", "Wisconsin", "Wyoming",
+] as const;

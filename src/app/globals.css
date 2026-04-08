@@ -1,37 +1,125 @@
 @import "tailwindcss";
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in-95 {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes slide-in-from-top-2 {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 :root {
-  --green-primary: #8BC53F;
-  --green-dark: #6FA332;
-  --green-light: #EBF5DC;
-  --navy: #101517;
-  --navy-light: #1E2A35;
-  --blue-accent: #2B5F9E;
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(210 40% 8%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(210 40% 8%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 40% 8%);
+  --primary: hsl(210 100% 45%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 40% 96%);
+  --secondary-foreground: hsl(210 40% 8%);
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(210 40% 45%);
+  --accent: hsl(210 40% 96%);
+  --accent-foreground: hsl(210 40% 8%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(210 40% 92%);
+  --input: hsl(210 40% 96%);
+  --ring: hsl(210 100% 45%);
+  --radius: 0.5rem;
+  --navy: #003169;
+  --navy-dark: #101517;
   --ink: #1A1B25;
   --slate: #6B7280;
   --gray-700: #374151;
   --mist: #E5E7EB;
-  --white: #FFFFFF;
-  --bg: #FFFFFF;
-  --border: hsl(210 40% 92%);
 }
 
 @theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--ink);
-  --color-brand: var(--green-primary);
-  --color-brand-dark: var(--green-dark);
-  --color-brand-light: var(--green-light);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --color-navy: var(--navy);
-  --color-navy-light: var(--navy-light);
+  --color-navy-dark: var(--navy-dark);
   --color-mist: var(--mist);
   --color-slate: var(--slate);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-inter);
 }
 
+* {
+  border-color: var(--border);
+}
+
 body {
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, rgba(0, 115, 230, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.service-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.service-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .prose h2 {
@@ -58,13 +146,13 @@ body {
 }
 
 .prose a {
-  color: var(--blue-accent);
+  color: hsl(210 100% 45%);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .prose a:hover {
-  color: var(--green-dark);
+  color: hsl(210 100% 35%);
 }
 
 .prose ul, .prose ol {
@@ -79,9 +167,9 @@ body {
 }
 
 .prose blockquote {
-  border-left: 3px solid var(--green-primary);
+  border-left: 3px solid hsl(210 100% 45%);
   padding: 0.75rem 1rem;
-  background: var(--green-light);
+  background: hsl(210 40% 96%);
   border-radius: 0 8px 8px 0;
   margin-bottom: 1.25rem;
   font-style: italic;
@@ -96,7 +184,7 @@ body {
 }
 
 .prose pre {
-  background: var(--navy);
+  background: var(--navy-dark);
   color: #e5e7eb;
   padding: 1.25rem;
   border-radius: 12px;

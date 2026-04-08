@@ -11,6 +11,10 @@ const STATIC_PAGES = [
   { path: "/bonds", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/cyber-insurance", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/our-story", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/about", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/get-a-quote", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/videos", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/podcast", changeFrequency: "monthly" as const, priority: 0.6 },
   { path: "/blogs", changeFrequency: "weekly" as const, priority: 0.7 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.3 },
 ];
