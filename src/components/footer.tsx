@@ -20,7 +20,7 @@ const SERVICES = [
 
 const ABOUT = [
   { label: "Our Story", href: "/our-story" },
-  { label: "Meet Our Team", href: "/meet-our-team" },
+  { label: "Meet Our Team", href: "/about" },
   { label: "Blog", href: "/blogs" },
 ] as const;
 
