@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { QuoteAssistantModal } from "@/components/quote-assistant/assistant-modal";
+import { DocumentProcessingBanner } from "@/components/quote-assistant/document-processing-banner";
 import {
   quoteFormSchema,
   defaultQuoteValues,
@@ -154,6 +155,12 @@ export default function GetAQuotePage() {
       setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
     }
   }, []);
+
+  useEffect(() => {
+    if (!isUploading) return;
+    const banner = document.getElementById("quote-upload-banner");
+    banner?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [isUploading]);
 
   useEffect(() => {
     const handleWindowDragEnter = (e: DragEvent) => {
@@ -535,20 +542,17 @@ export default function GetAQuotePage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               {/* Upload status bar */}
-              <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-[0_20px_44px_-22px_hsl(var(--primary))] p-5 mb-10 transition-colors">
+              <div
+                id="quote-upload-banner"
+                className="mb-10 scroll-mt-24"
+                role={isUploading ? "status" : undefined}
+                aria-busy={isUploading ? true : undefined}
+                aria-live={isUploading ? "polite" : undefined}
+              >
                 {isUploading ? (
-                  <div className="flex items-center gap-4">
-                    <div className="h-8 w-8 shrink-0 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        Processing document...
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Extracting information and filling the form
-                      </p>
-                    </div>
-                  </div>
+                  <DocumentProcessingBanner />
                 ) : uploadedFile ? (
+                  <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-lg shadow-primary/20 p-5 transition-colors">
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-3">
                       <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0" />
@@ -578,8 +582,9 @@ export default function GetAQuotePage() {
                       Upload different file
                     </Button>
                   </div>
+                  </div>
                 ) : (
-                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-lg shadow-primary/20 p-5 transition-colors flex items-center justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-3">
                       <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0">
                         <Upload className="h-5 w-5 text-primary" />
@@ -864,6 +869,7 @@ export default function GetAQuotePage() {
           form={form}
           onSubmit={handleAssistantSubmit}
           onOpenChange={setPanelOpen}
+          onDocumentProcessingChange={setIsUploading}
         />
           </>
         )}

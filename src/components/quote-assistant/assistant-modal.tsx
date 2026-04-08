@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { QuoteAssistantProvider, type QuoteAssistantContextType } from "./assistant-context";
+import { DocumentProcessingBanner } from "./document-processing-banner";
 import type { QuoteFormValues } from "@/lib/quote-types";
 import {
   CONVERSATION_FLOW,
@@ -25,6 +26,8 @@ interface AssistantModalProps {
   form: UseFormReturn<QuoteFormValues>;
   onSubmit?: () => void;
   onOpenChange?: (open: boolean) => void;
+  /** Syncs with main quote page so the upload banner stays visible for assistant uploads */
+  onDocumentProcessingChange?: (processing: boolean) => void;
 }
 
 const REQUIRED_FIELD_KEYS: Array<keyof QuoteFormValues> = [
@@ -116,7 +119,7 @@ export const QuoteAssistantModal = forwardRef<
   { askQuestion: (q: string, d?: string) => void; openAssistant: () => void; handleMissingFields: (missingFields: string[], filledFields: string[]) => void },
   AssistantModalProps
 >(function QuoteAssistantModal(
-  { form, onSubmit, onOpenChange },
+  { form, onSubmit, onOpenChange, onDocumentProcessingChange },
   ref,
 ) {
   const [open, setOpenState] = useState(true);
@@ -286,6 +289,7 @@ export const QuoteAssistantModal = forwardRef<
 
   const handleDocumentUpload = async (file: File) => {
     setIsUploading(true);
+    onDocumentProcessingChange?.(true);
     appendMessage({ role: "user", text: `Uploaded: ${file.name}` });
     appendMessage({ role: "bot", text: "Processing your document..." });
     try {
@@ -349,6 +353,7 @@ export const QuoteAssistantModal = forwardRef<
       appendMessage({ role: "bot", text: "I had trouble processing that document. Please try again." });
     } finally {
       setIsUploading(false);
+      onDocumentProcessingChange?.(false);
     }
   };
 
@@ -567,6 +572,16 @@ export const QuoteAssistantModal = forwardRef<
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
+          {isUploading && (
+            <div
+              className="sticky top-0 z-10 -mx-4 mb-1 px-4 pt-0 pb-2 bg-background/95 backdrop-blur-sm border-b border-border/60 shadow-sm"
+              role="status"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <DocumentProcessingBanner />
+            </div>
+          )}
           {messages.map((message, index) => (
             <div
               key={index}
@@ -584,11 +599,11 @@ export const QuoteAssistantModal = forwardRef<
               </div>
             </div>
           ))}
-          {(isLoading || isUploading) && (
+          {isLoading && !isUploading && (
             <div className="flex items-start">
               <div className="bg-muted text-foreground rounded-lg px-3 py-2 flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <p className="text-sm">{isUploading ? "Processing document..." : "Thinking..."}</p>
+                <p className="text-sm">Thinking...</p>
               </div>
             </div>
           )}
