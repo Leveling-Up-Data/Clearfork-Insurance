@@ -1,5 +1,5 @@
 import RSS from "rss";
-import { getAllPosts } from "@/lib/posts";
+import { BLOG_POSTS_DETAIL } from "@/data/blog-posts";
 
 const SITE_URL = "https://clearforkinsurance.com";
 
@@ -8,20 +8,20 @@ export async function GET() {
     title: "SIG Clearfork Insurance Group Blog",
     description: "Insurance tips, industry insights, and news from SIG Clearfork Insurance Group.",
     site_url: SITE_URL,
-    feed_url: `${SITE_URL}/blogs/rss.xml`,
+    feed_url: `${SITE_URL}/blog/rss.xml`,
     language: "en",
     pubDate: new Date(),
   });
 
-  const posts = getAllPosts();
-  for (const post of posts) {
+  for (const post of BLOG_POSTS_DETAIL) {
+    const parsed = Date.parse(post.date);
     feed.item({
       title: post.title,
-      description: post.description,
-      url: `${SITE_URL}/blogs/${post.slug}`,
-      date: new Date(post.date),
+      description: post.excerpt,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      date: Number.isNaN(parsed) ? new Date() : new Date(parsed),
       author: post.author,
-      categories: post.tags,
+      categories: [post.category],
     });
   }
 

@@ -102,7 +102,7 @@ export function blogPostSchema(post: {
     description: post.description,
     datePublished: post.date,
     dateModified: post.date,
-    url: `${SITE_URL}/blogs/${post.slug}`,
+    url: `${SITE_URL}/blog/${post.slug}`,
     author: {
       "@type": "Organization",
       name: BUSINESS_INFO.name,
@@ -116,7 +116,7 @@ export function blogPostSchema(post: {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${SITE_URL}/blogs/${post.slug}`,
+      "@id": `${SITE_URL}/blog/${post.slug}`,
     },
   };
 }

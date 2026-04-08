@@ -11,58 +11,70 @@ const img = (path: string) => encodeURI(path);
 
 const BLOG_ITEMS = [
   {
-    title: "How We Protect Your Blended Family",
+    title: "Insurance Rates Are a Black Box: Understanding Texas Property Insurance Rates",
     excerpt:
-      "Blended families face unique coverage gaps. Here is how we align policies so everyone is protected.",
+      "You open your homeowners renewal and the premium has jumped again — and you are almost certainly not told how that number was calculated. A policy perspective on rate regulation and transparency in Texas.",
     author: "David Hargrove",
     role: "Owner",
-    date: "Jan 6, 2026",
-    href: "/blogs/how-we-protect-your-blended-family",
+    date: "Apr 8, 2026",
+    href: "/blog/insurance-rates-are-a-black-box-texas-property",
     image: img("/images/group photo 3_1761008420820.jpg"),
     avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
   },
   {
-    title: "How End-of-Life Planning Can Ease Financial Concerns",
+    title: "So You Received an Inspection on Your New Homeowners Policy",
     excerpt:
-      "Planning ahead can lift the burden on loved ones. We walk through life insurance and legacy considerations.",
+      "A property inspection can upend your coverage, cancel your policy, or quietly raise your premiums. What to expect when you switch carriers, at renewal, and in the first 60 days.",
     author: "Sid Hargrove",
     role: "Owner",
-    date: "Jan 6, 2026",
-    href: "/blogs/how-end-of-life-planning-can-ease-financial-concerns",
-    image: img("/images/SCR-20250919-sqme_1758335513957.jpeg"),
+    date: "Apr 8, 2026",
+    href: "/blog/homeowners-insurance-inspection-guide-texas",
+    image: img("/images/group photo 1 (1)_1761008519000.jpg"),
     avatar: img("/images/sid hargrove headshot_1761004385331.jpg"),
   },
   {
-    title: "Life Insurance: 5 Signs You Might Be Underinsured",
+    title: "Insurance Rates Are a Black Box 2.0: The Auto Insurance Edition",
     excerpt:
-      "Coverage amounts often lag behind real life. These five signals mean it is time for a review.",
-    author: "Alecia Middleton",
-    role: "Licensed Agent",
-    date: "Jan 6, 2026",
-    href: "/blogs/life-insurance-5-signs-you-might-be-underinsured",
-    image: img("/images/SCR-20250919-sqme_1758335513957-DJk4-g.jpeg"),
-    avatar: img("/images/alecia middleton headshot_1761004385330.jpg"),
+      "Why drivers deserve to understand what they are really paying for — credit-based scores, telematics, CLUE, renewal ratchets, and transparency gaps unique to auto.",
+    author: "David Hargrove",
+    role: "Owner",
+    date: "Apr 8, 2026",
+    href: "/blog/insurance-rates-black-box-auto-insurance-edition",
+    image: img("/images/SCR-20250919-sqme_1758335513957.jpeg"),
+    avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
   },
 ] as const;
 
+/** Thumbnails from YouTube (see https://img.youtube.com). */
+const ytThumb = (id: string) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+
 const VIDEO_ITEMS = [
   {
-    title: "Homeowners Insurance",
+    title: "My Homeowners Insurance Increased My Coverage Without My Permission",
     excerpt:
-      "What goes into a strong homeowners policy — and what to ask your agent before renewal.",
-    videoId: "a18d456Y0RQ",
-    image: img("/images/group photo 1 (1)_1761008519000.jpg"),
-    author: "Clearfork Team",
-    avatar: img("/images/leslie dolman headshot_1761004385329.jpg"),
+      "How replacement cost and underwriting changes can raise your dwelling limit—and your premium—even when you didn’t request more coverage.",
+    videoId: "2CVuQ7wJLik",
+    image: ytThumb("2CVuQ7wJLik"),
+    author: "The Insurance Blackbox",
+    avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
   },
   {
-    title: "Accidents and Disability",
+    title: "Never Mix Personal and Business Insurance",
     excerpt:
-      "When the unexpected happens, the right coverage can protect income and recovery time.",
-    videoId: "KGDHxRv36mE",
-    image: img("/images/group photo 3_1761008420820.jpg"),
-    author: "Clearfork Team",
-    avatar: img("/images/kelli bhaner head shot_1761004385330.jpg"),
+      "Why running a business on a personal policy leaves serious gaps—and what to line up instead so liability and property are actually protected.",
+    videoId: "XhtnrsvJFCw",
+    image: ytThumb("XhtnrsvJFCw"),
+    author: "The Insurance Blackbox",
+    avatar: img("/images/sid hargrove headshot_1761004385331.jpg"),
+  },
+  {
+    title: "They Are Canceling My Homeowners Insurance Policy Because of Needed Repairs",
+    excerpt:
+      "What it means when an insurer ties cancellation or non-renewal to inspection findings, and how to respond before you lose coverage.",
+    videoId: "zO4LW1uClnY",
+    image: ytThumb("zO4LW1uClnY"),
+    author: "The Insurance Blackbox",
+    avatar: img("/images/leslie dolman headshot_1761004385329.jpg"),
   },
 ] as const;
 
@@ -71,9 +83,9 @@ const PODCAST_ITEMS = [
   {
     title: "RV Insurance: Protecting Your Adventures",
     excerpt:
-      "Hit the road with confidence — we cover liability, personal effects, and full-timer scenarios.",
+      "Choosing coverage limits, full-timer options, and what to watch for with towing, storage, and roadside help.",
     image: img("/images/group photo 1 (1)_1761008519000.jpg"),
-    author: "Clearfork Team",
+    author: "David Hargrove, Owner",
     avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
     spotifyEmbedUrl:
       "https://open.spotify.com/embed/show/3yVcLzTuxVS2bXbc5dNDsG?utm_source=generator",
@@ -81,9 +93,9 @@ const PODCAST_ITEMS = [
   {
     title: "Cyber Insurance: What You Need to Know",
     excerpt:
-      "From phishing to ransomware, learn what cyber policies typically cover — and where gaps appear.",
+      "How cyber coverage helps businesses respond to incidents—breach response, ransomware, and business interruption.",
     image: img("/images/SCR-20250919-sqme_1758335513957.jpeg"),
-    author: "Clearfork Team",
+    author: "Sid Hargrove, Owner",
     avatar: img("/images/sid hargrove headshot_1761004385331.jpg"),
     spotifyEmbedUrl:
       "https://open.spotify.com/embed/show/2VRS1IJCTn2Nlkg33S1KG2?utm_source=generator",
@@ -117,8 +129,7 @@ export default function ContentHubSection() {
           <div>
             <h2 className="text-2xl font-bold text-[var(--navy)]">Blog</h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--slate)]">
-              Practical guidance on life, home, and business coverage from our
-              licensed team.
+              Insights and practical guidance from our team.
             </p>
             <ul className="mt-8 space-y-8">
               {BLOG_ITEMS.map((post) => (
@@ -173,10 +184,10 @@ export default function ContentHubSection() {
               ))}
             </ul>
             <Link
-              href="/blogs"
+              href="/blog"
               className="mt-8 inline-flex rounded-full border border-primary bg-white px-6 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/5"
             >
-              Explore
+              Explore our blog.
             </Link>
           </div>
 
@@ -184,8 +195,7 @@ export default function ContentHubSection() {
           <div>
             <h2 className="text-2xl font-bold text-[var(--navy)]">Video</h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--slate)]">
-              Short explainers on products and real questions we hear from
-              clients.
+              Short explainers on coverage and planning.
             </p>
             <ul className="mt-8 space-y-8">
               {VIDEO_ITEMS.map((v) => (
@@ -244,22 +254,19 @@ export default function ContentHubSection() {
                 </li>
               ))}
             </ul>
-            <a
-              href="https://www.youtube.com"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/videos"
               className="mt-8 inline-flex rounded-full border border-primary bg-white px-6 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/5"
             >
-              Explore
-            </a>
+              Explore all videos.
+            </Link>
           </div>
 
           {/* Podcast */}
           <div>
             <h2 className="text-2xl font-bold text-[var(--navy)]">Podcast</h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--slate)]">
-              Deeper dives on specialty lines and risk trends — listen on
-              Spotify.
+              Conversations on risk, protection, and peace of mind.
             </p>
             <ul className="mt-8 space-y-8">
               {PODCAST_ITEMS.map((p) => (
@@ -318,14 +325,12 @@ export default function ContentHubSection() {
                 </li>
               ))}
             </ul>
-            <a
-              href="https://open.spotify.com"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/podcast"
               className="mt-8 inline-flex rounded-full border border-primary bg-white px-6 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/5"
             >
-              Explore
-            </a>
+              Explore all podcast.
+            </Link>
           </div>
         </div>
       </PageShell>

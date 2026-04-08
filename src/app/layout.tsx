@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Chatbot } from "@/components/chatbot";
+import { Toaster } from "@/components/ui/toaster";
 import { insuranceAgencySchema } from "@/lib/schema";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
@@ -73,10 +74,14 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex min-h-full flex-col font-sans">
+      <body
+        className="flex min-h-full flex-col font-sans"
+        suppressHydrationWarning
+      >
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Toaster />
         <Chatbot />
         {RECAPTCHA_SITE_KEY && (
           <Script
