@@ -9,6 +9,10 @@ import mammoth from "mammoth";
 import { NextRequest, NextResponse } from "next/server";
 import { geminiModelCandidates } from "@/lib/gemini-models";
 import {
+  extractQuoteFieldsFromLabeledDocumentText,
+  mergeModelUpdatesWithHeuristic,
+} from "@/lib/quote-profile-line-parse";
+import {
   FIELD_NAME_MAP,
   QUOTE_FIELD_LABELS,
   QUOTE_FORM_FIELD_KEYS,
@@ -116,6 +120,9 @@ const EXTRACTION_RESPONSE_SCHEMA = buildExtractionResponseSchema();
 const UPLOAD_SYSTEM_PROMPT = `You are an expert at reading US auto insurance declarations pages, ID cards, and quote worksheets. Extract data for our quote form.
 
 GOAL: Fill as many of the allowed form fields as possible. Scan the ENTIRE document: header, named insured, policy address, garaging/mailing address blocks, every driver row in tables, every vehicle, discounts, and notes.
+
+LABELED PROFILE / INTAKE DOCUMENTS:
+- Many Word files use one field per line like "First Name: Jane" or "Email Address: x@y.com". Parse EVERY such line and map to the matching form key. Do not skip lines because the layout looks informal.
 
 NAMED INSURED / APPLICANT:
 - Split the policyholder name into firstName and lastName (given name(s) → firstName, surname → lastName). If only "LAST, FIRST" format appears, parse accordingly.
@@ -285,16 +292,29 @@ function htmlRoughFromDocxHtml(html: string): string {
     .trim();
 }
 
-async function docxBufferToStructuredText(buffer: Buffer): Promise<string> {
+async function docxBufferToModelAndRaw(buffer: Buffer): Promise<{
+  modelText: string;
+  rawPlain: string;
+}> {
+  const { value: raw } = await mammoth.extractRawText({ buffer });
+  const rawTrim = raw.trim();
+  let structured = "";
   try {
     const { value: html } = await mammoth.convertToHtml({ buffer });
-    const structured = htmlRoughFromDocxHtml(html);
-    if (structured.replace(/\s/g, "").length >= 40) return structured;
+    structured = htmlRoughFromDocxHtml(html);
   } catch (e) {
     console.warn("[quote-assistant/upload] docx→HTML failed, falling back:", e);
   }
-  const { value } = await mammoth.extractRawText({ buffer });
-  return value.trim();
+  const structuredOk = structured.replace(/\s/g, "").length >= 40;
+  let modelText: string;
+  if (structuredOk && rawTrim.length >= 20) {
+    modelText = `=== Structured (tables / blocks) ===\n${structured}\n\n=== Plain text ===\n${rawTrim}`;
+  } else if (structuredOk) {
+    modelText = structured;
+  } else {
+    modelText = rawTrim;
+  }
+  return { modelText, rawPlain: rawTrim };
 }
 
 /**
@@ -332,22 +352,44 @@ function successPayload(
   parsed: Record<string, unknown> | null,
   fallbackText: string,
   knownForm: Partial<Record<string, unknown>>,
+  labeledDocPlainText?: string,
 ): {
   updates: Partial<Record<keyof QuoteFormValues, string>>;
   missingFields: string[];
   reply: string;
 } {
+  const heuristic =
+    labeledDocPlainText && labeledDocPlainText.length > 15
+      ? extractQuoteFieldsFromLabeledDocumentText(labeledDocPlainText)
+      : {};
+
   if (!parsed) {
+    const updates =
+      Object.keys(heuristic).length > 0
+        ? heuristic
+        : ({} as Partial<Record<keyof QuoteFormValues, string>>);
+    const mergedForCheck = effectiveValues(updates, knownForm);
+    const missingFields: string[] = [];
+    for (const key of REQUIRED_KEYS) {
+      const v = mergedForCheck[key];
+      if (!v || String(v).trim() === "") missingFields.push(key);
+    }
     return {
-      updates: {},
-      missingFields: [...REQUIRED_KEYS],
+      updates,
+      missingFields,
       reply:
-        fallbackText ||
-        "Could not read structured data from the model. Try a clearer PDF or photo.",
+        Object.keys(updates).length > 0
+          ? "Filled fields from your document using labeled lines in the file."
+          : fallbackText ||
+            "Could not read structured data from the model. Try a clearer PDF or photo.",
     };
   }
 
-  const updates = sanitizeUpdates(parsed.updates);
+  const modelUpdates = sanitizeUpdates(parsed.updates);
+  const updates =
+    Object.keys(heuristic).length > 0
+      ? mergeModelUpdatesWithHeuristic(modelUpdates, heuristic)
+      : modelUpdates;
   const mergedForCheck = effectiveValues(updates, knownForm);
   const rawMissing = parsed.missingFields;
   const missingFields: string[] = [];
@@ -469,10 +511,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let docxPlainForHeuristic: string | undefined;
+
     if (isDocxUpload(mimeType, displayName)) {
       let documentText: string;
       try {
-        documentText = await docxBufferToStructuredText(buffer);
+        const { modelText, rawPlain } = await docxBufferToModelAndRaw(buffer);
+        documentText = modelText;
+        docxPlainForHeuristic = rawPlain;
       } catch (e) {
         console.error("[quote-assistant/upload] docx extraction failed:", e);
         return NextResponse.json(
@@ -554,6 +600,7 @@ export async function POST(req: NextRequest) {
           null,
           `Could not analyze the file (${msg}). Try a PDF or PNG/JPG.`,
           knownForm,
+          docxPlainForHeuristic,
         ),
       );
     }
@@ -564,14 +611,19 @@ export async function POST(req: NextRequest) {
 
     const text = extractModelText(result);
     const parsed = parseExtractionJson(text);
-    const payload = successPayload(parsed, text, knownForm);
+    const payload = successPayload(
+      parsed,
+      text,
+      knownForm,
+      docxPlainForHeuristic,
+    );
 
     return NextResponse.json(payload);
   } catch (error) {
     console.error("[quote-assistant/upload] error:", error);
     const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      successPayload(null, `Something went wrong: ${msg}`, {}),
+      successPayload(null, `Something went wrong: ${msg}`, {}, undefined),
     );
   }
 }

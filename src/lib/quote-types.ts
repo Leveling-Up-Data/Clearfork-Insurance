@@ -429,7 +429,8 @@ export function normalizeExtractedQuoteValue(
   if (key === "zipCode") {
     const digits = v.replace(/\D/g, "");
     if (digits.length >= 9) return `${digits.slice(0, 5)}-${digits.slice(5, 9)}`;
-    if (digits.length >= 5) return digits.slice(0, 5);
+    if (digits.length === 5 || digits.length === 6) return digits;
+    if (digits.length > 5) return digits.slice(0, 5);
     return v;
   }
   if (key === "dateOfBirth" || key === "additionalDriverDOB") {
