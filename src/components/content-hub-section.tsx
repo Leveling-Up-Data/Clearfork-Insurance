@@ -22,17 +22,6 @@ const BLOG_ITEMS = [
     avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
   },
   {
-    title: "So You Received an Inspection on Your New Homeowners Policy",
-    excerpt:
-      "A property inspection can upend your coverage, cancel your policy, or quietly raise your premiums. What to expect when you switch carriers, at renewal, and in the first 60 days.",
-    author: "Sid Hargrove",
-    role: "Owner",
-    date: "Apr 8, 2026",
-    href: "/blog/homeowners-insurance-inspection-guide-texas",
-    image: img("/images/group photo 1 (1)_1761008519000.jpg"),
-    avatar: img("/images/sid hargrove headshot_1761004385331.jpg"),
-  },
-  {
     title: "Insurance Rates Are a Black Box 2.0: The Auto Insurance Edition",
     excerpt:
       "Why drivers deserve to understand what they are really paying for — credit-based scores, telematics, CLUE, renewal ratchets, and transparency gaps unique to auto.",

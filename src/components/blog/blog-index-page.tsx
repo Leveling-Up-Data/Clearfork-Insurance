@@ -34,13 +34,17 @@ const BLOG_POSTS: BlogPost[] = BLOG_POSTS_DETAIL.map((p, i) => ({
   href: `/blog/${p.slug}`,
 }));
 
-const CATEGORIES: BlogFilter[] = [
-  "All",
+const CATEGORY_ORDER: BlogCategory[] = [
   "Home & Auto",
   "Commercial",
   "Life",
   "Cyber",
   "Performance",
+];
+
+const CATEGORIES: BlogFilter[] = [
+  "All",
+  ...CATEGORY_ORDER.filter((c) => BLOG_POSTS_DETAIL.some((p) => p.category === c)),
 ];
 
 const POSTS_PER_PAGE = 9;

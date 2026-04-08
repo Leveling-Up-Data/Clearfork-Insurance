@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/blog/how-end-of-life-planning-can-ease-financial-concerns",
-        destination: "/blog/homeowners-insurance-inspection-guide-texas",
+        destination: "/blog",
         permanent: true,
       },
       {
