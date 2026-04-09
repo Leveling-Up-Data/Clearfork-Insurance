@@ -9,6 +9,7 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import { PageShell } from "@/components/page-shell";
+import { GOOGLE_MAPS_PLACE_URL } from "@/lib/schema";
 
 const SERVICES = [
   { label: "Home/Auto Insurance", href: "/home-auto-insurance" },
@@ -37,7 +38,7 @@ const SOCIAL = [
   },
   {
     label: "Google Maps",
-    href: "https://www.google.com/maps/place/SIG+Clearfork+Insurance+Group/",
+    href: GOOGLE_MAPS_PLACE_URL,
     icon: FaGoogle,
   },
   {
@@ -153,16 +154,15 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://www.google.com/maps/place/SIG+Clearfork+Insurance+Group/"
+                  href={GOOGLE_MAPS_PLACE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start gap-2 transition-colors hover:text-white"
                 >
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-white/90" aria-hidden />
-                  <span>
-                    992 Winscott Rd Suite B
-                    <br />
-                    Benbrook, TX 76126
+                  <span className="min-w-0 flex flex-col gap-0.5 leading-snug">
+                    <span className="block">992 Winscott Rd Suite B</span>
+                    <span className="block">Benbrook, TX 76126</span>
                   </span>
                 </a>
               </li>

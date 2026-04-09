@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { GOOGLE_MAPS_PLACE_URL } from "@/lib/schema";
 
 const MAP_EMBED =
   "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3359.0!2d-97.4530557!3d32.6774231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864e0d58913d6ba9%3A0xd74c505d2f0140c5!2sSIG%20Clearfork%20Insurance%20Group!5e0!3m2!1sen!2sus!4v1";
@@ -61,11 +62,16 @@ export default function ContactSection() {
               </span>
               <div>
                 <p className="font-semibold text-[var(--navy)]">Office</p>
-                <p className="text-[var(--slate)]">
+                <a
+                  href={GOOGLE_MAPS_PLACE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--slate)] underline-offset-2 transition-colors hover:text-primary hover:underline"
+                >
                   992 Winscott Rd Suite B
                   <br />
                   Benbrook, TX 76126
-                </p>
+                </a>
               </div>
             </li>
           </ul>

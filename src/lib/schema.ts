@@ -17,6 +17,10 @@ export const BUSINESS_INFO = {
     "Your trusted insurance partner with 90 years of combined experience, providing comprehensive coverage solutions for individuals and businesses in Benbrook, TX.",
 };
 
+/** Google Maps listing for this office (stable business CID). */
+export const GOOGLE_MAPS_PLACE_URL =
+  "https://www.google.com/maps?cid=15513863177535307973&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYASAA&hl=en-US";
+
 export function insuranceAgencySchema() {
   return {
     "@context": "https://schema.org",
