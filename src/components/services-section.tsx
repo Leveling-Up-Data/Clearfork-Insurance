@@ -21,6 +21,8 @@ const AUTOPLAY_MS = 3200;
 const SERVICES = [
   {
     title: "Home & Auto",
+    intro:
+      "Protect your home, car, and valuables — bundled for savings or separately, your call.",
     href: "/home-auto-insurance",
     icon: Home,
     coverages: [
@@ -32,6 +34,8 @@ const SERVICES = [
   },
   {
     title: "Commercial",
+    intro:
+      "General liability, property, workers' comp, cyber — we cover Fort Worth businesses of every size.",
     href: "/commercial-insurance",
     icon: Building,
     coverages: [
@@ -43,6 +47,8 @@ const SERVICES = [
   },
   {
     title: "Marine & Watercraft",
+    intro:
+      "Boats, yachts, and watercraft — liability, equipment, and seasonal options so you're covered on the water and off.",
     href: "/home-auto-insurance",
     icon: Ship,
     coverages: [
@@ -54,6 +60,8 @@ const SERVICES = [
   },
   {
     title: "Life Insurance",
+    intro:
+      "Term life, whole life, surety bonds — built around your family's future and your business requirements.",
     href: "/life-insurance",
     icon: Heart,
     coverages: [
@@ -65,6 +73,8 @@ const SERVICES = [
   },
   {
     title: "Cyber Insurance",
+    intro:
+      "Data breach response, ransomware, and business interruption — modern protection when digital risk becomes real.",
     href: "/cyber-insurance",
     icon: Monitor,
     coverages: [
@@ -76,6 +86,8 @@ const SERVICES = [
   },
   {
     title: "Performance & Bid Bonds",
+    intro:
+      "Surety bonds — built around your business requirements when contracts call for bid, performance, or payment guarantees.",
     href: "/bonds",
     icon: BadgeDollarSign,
     coverages: [
@@ -112,12 +124,15 @@ export default function ServicesSection() {
       <PageShell>
         <div className="grid gap-10 lg:grid-cols-[minmax(0,340px)_1fr] lg:items-center lg:gap-12">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight lg:text-4xl">
-              Insurance Services
+            <p className="text-xs font-semibold uppercase tracking-[0.07em] text-primary-foreground/75">
+              What we cover
+            </p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight lg:text-4xl">
+              One agency for all your coverage needs
             </h2>
             <p className="mt-4 text-base leading-relaxed text-primary-foreground/90">
-              We offer a full range of personal and commercial products tailored
-              to your goals — from home and auto to life, cyber, and surety bonds.
+              We work with multiple top-rated carriers so you get options — not
+              just whatever one company sells.
             </p>
             <div className="mt-8 flex gap-3">
               <button
@@ -152,7 +167,7 @@ export default function ServicesSection() {
                   >
                     <article
                       className={cn(
-                        "flex h-full min-h-[380px] flex-col rounded-lg bg-white p-6 shadow-lg",
+                        "flex h-full min-h-[440px] flex-col rounded-lg bg-white p-6 shadow-lg",
                         "text-foreground",
                       )}
                     >
@@ -162,6 +177,9 @@ export default function ServicesSection() {
                       <h3 className="text-xl font-bold text-[var(--navy)]">
                         {s.title}
                       </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-[var(--slate)]">
+                        {s.intro}
+                      </p>
                       <ul className="mt-4 flex-1 space-y-2 text-sm text-[var(--slate)]">
                         {s.coverages.map((c) => (
                           <li key={c} className="flex gap-2">

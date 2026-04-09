@@ -174,12 +174,17 @@ export function Header() {
           <Link href="/blog" className={navLinkClass}>
             Blog
           </Link>
-          <Link href="/get-a-quote" className={cn(navLinkClass, "font-semibold")}>
-            Get a Quote
-          </Link>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex">
+          {!isBlogPost && (
+            <a
+              href="tel:8172498683"
+              className="whitespace-nowrap text-sm font-medium text-foreground transition-colors hover:text-primary"
+            >
+              (817) 249-8683
+            </a>
+          )}
           {isBlogPost ? (
             <Link
               href="/#contact"
@@ -188,12 +193,12 @@ export function Header() {
               Subscribe to News
             </Link>
           ) : (
-            <a
-              href="tel:8172498683"
+            <Link
+              href="/get-a-quote"
               className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              Call Us (817) 249-8683
-            </a>
+              Get a Quote
+            </Link>
           )}
         </div>
 
@@ -283,12 +288,6 @@ export function Header() {
             <Link href="/blog" className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
               Blog
             </Link>
-            <Link
-              href="/get-a-quote"
-              className="rounded-md px-3 py-2 text-sm font-semibold hover:bg-muted"
-            >
-              Get a Quote
-            </Link>
 
             {isBlogPost ? (
               <Link
@@ -298,12 +297,20 @@ export function Header() {
                 Subscribe to News
               </Link>
             ) : (
-              <a
-                href="tel:8172498683"
-                className="mt-2 rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-              >
-                Call Us (817) 249-8683
-              </a>
+              <>
+                <Link
+                  href="/get-a-quote"
+                  className="mt-2 rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Get a Quote
+                </Link>
+                <a
+                  href="tel:8172498683"
+                  className="mt-1 block py-2 text-center text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
+                  (817) 249-8683
+                </a>
+              </>
             )}
           </nav>
         </PageShell>
