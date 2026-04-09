@@ -1,4 +1,4 @@
-const SITE_URL = "https://clearforkinsurance.com";
+export const SITE_URL = "https://clearforkinsurance.com";
 
 export const BUSINESS_INFO = {
   name: "SIG Clearfork Insurance Group",

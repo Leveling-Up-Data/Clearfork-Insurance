@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { BLOG_POSTS_DETAIL } from "@/data/blog-posts";
+import { SITE_URL } from "@/lib/schema";
 
-const BASE = "https://clearforkinsurance.com";
-
+/** Indexable marketing pages (App Router). Blog post URLs are appended from BLOG_POSTS_DETAIL. */
 const STATIC_PAGES = [
   { path: "/", changeFrequency: "weekly" as const, priority: 1 },
   { path: "/home-auto-insurance", changeFrequency: "monthly" as const, priority: 0.9 },
@@ -16,12 +16,13 @@ const STATIC_PAGES = [
   { path: "/videos", changeFrequency: "monthly" as const, priority: 0.6 },
   { path: "/podcast", changeFrequency: "monthly" as const, priority: 0.6 },
   { path: "/blog", changeFrequency: "weekly" as const, priority: 0.7 },
+  { path: "/blog/rss.xml", changeFrequency: "weekly" as const, priority: 0.5 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.3 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticEntries = STATIC_PAGES.map((p) => ({
-    url: `${BASE}${p.path}`,
+    url: `${SITE_URL}${p.path}`,
     lastModified: new Date(),
     changeFrequency: p.changeFrequency,
     priority: p.priority,
@@ -30,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const blogEntries = BLOG_POSTS_DETAIL.map((post) => {
     const parsed = Date.parse(post.date);
     return {
-      url: `${BASE}/blog/${post.slug}`,
+      url: `${SITE_URL}/blog/${post.slug}`,
       lastModified: Number.isNaN(parsed) ? new Date() : new Date(parsed),
       changeFrequency: "monthly" as const,
       priority: 0.6,
