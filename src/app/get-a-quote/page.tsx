@@ -30,13 +30,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { QuoteAssistantModal } from "@/components/quote-assistant/assistant-modal";
+import {
+  QuoteAssistantModal,
+  type QuoteAssistantHandle,
+} from "@/components/quote-assistant/assistant-modal";
 import { DocumentProcessingBanner } from "@/components/quote-assistant/document-processing-banner";
 import {
   quoteFormSchema,
   defaultQuoteValues,
   type QuoteFormValues,
   isQuoteFormFieldKey,
+  QUOTE_FIELD_LABELS,
 } from "@/lib/quote-types";
 import { isAllowedQuoteUploadFile } from "@/lib/quote-upload";
 import { cn } from "@/lib/utils";
@@ -54,14 +58,7 @@ export default function GetAQuotePage() {
   const [panelOpen, setPanelOpen] = useState(true);
   /** Avoid hydration mismatch: extensions (e.g. autofill) inject attrs like fdprocessedid before React hydrates. */
   const [clientReady, setClientReady] = useState(false);
-  const assistantRef = useRef<{
-    askQuestion: (q: string, d?: string) => void;
-    openAssistant: () => void;
-    handleMissingFields: (
-      missingFields: string[],
-      filledFields: string[],
-    ) => void;
-  } | null>(null);
+  const assistantRef = useRef<QuoteAssistantHandle | null>(null);
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -379,13 +376,20 @@ export default function GetAQuotePage() {
   const renderInfoIcon = (name: keyof QuoteFormValues) => {
     const tip = fieldTooltips[name];
     if (!tip) return null;
+    const fieldLabel = QUOTE_FIELD_LABELS[name];
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Info
-            size={14}
-            className="text-muted-foreground hover:text-primary cursor-help inline-block ml-1"
-          />
+          <button
+            type="button"
+            className="inline-flex shrink-0 ml-1 rounded-sm text-muted-foreground hover:text-primary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label={`Field help: ${fieldLabel}`}
+            onClick={() => {
+              assistantRef.current?.showFieldHelp(fieldLabel, tip);
+            }}
+          >
+            <Info size={14} className="pointer-events-none" aria-hidden />
+          </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[220px] text-xs">
           {tip}

@@ -22,6 +22,13 @@ interface ChatMessage {
   text: string;
 }
 
+export type QuoteAssistantHandle = {
+  askQuestion: (q: string, d?: string) => void;
+  openAssistant: () => void;
+  handleMissingFields: (missingFields: string[], filledFields: string[]) => void;
+  showFieldHelp: (fieldLabel: string, helpText: string) => void;
+};
+
 interface AssistantModalProps {
   form: UseFormReturn<QuoteFormValues>;
   onSubmit?: () => void;
@@ -115,10 +122,7 @@ function normalizeForSelect(fieldKey: keyof QuoteFormValues, rawValue: string): 
   return rawValue;
 }
 
-export const QuoteAssistantModal = forwardRef<
-  { askQuestion: (q: string, d?: string) => void; openAssistant: () => void; handleMissingFields: (missingFields: string[], filledFields: string[]) => void },
-  AssistantModalProps
->(function QuoteAssistantModal(
+export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantModalProps>(function QuoteAssistantModal(
   { form, onSubmit, onOpenChange, onDocumentProcessingChange },
   ref,
 ) {
@@ -498,6 +502,18 @@ export const QuoteAssistantModal = forwardRef<
     [open, appendMessage, callGemini]
   );
 
+  const showFieldHelp = useCallback(
+    (fieldLabel: string, helpText: string) => {
+      setOpen(true);
+      const body = helpText.trim();
+      appendMessage({
+        role: "bot",
+        text: body ? `${fieldLabel}\n\n${body}` : fieldLabel,
+      });
+    },
+    [setOpen, appendMessage],
+  );
+
   const handleMissingFields = useCallback((missingFields: string[], filledFields: string[]) => {
     if (!open) setOpen(true);
     if (filledFields.length > 0) {
@@ -523,13 +539,15 @@ export const QuoteAssistantModal = forwardRef<
   const assistantContextValue: QuoteAssistantContextType = {
     askQuestion,
     openAssistant: () => setOpen(true),
+    showFieldHelp,
   };
 
   useImperativeHandle(ref, () => ({
     askQuestion,
     openAssistant: () => setOpen(true),
     handleMissingFields,
-  }), [askQuestion, handleMissingFields]);
+    showFieldHelp,
+  }), [askQuestion, handleMissingFields, showFieldHelp]);
 
   if (!open) {
     return (
