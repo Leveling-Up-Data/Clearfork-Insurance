@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { Bot, Loader2, Send, X } from "lucide-react";
+import { Loader2, Send, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatedBotLogo } from "./animated-bot-logo";
 
 type ChatRole = "user" | "bot";
 
@@ -52,7 +53,10 @@ export function Chatbot() {
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
-      listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+      listRef.current?.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     });
   }, []);
 
@@ -92,14 +96,18 @@ export function Chatbot() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: text }),
         });
-        let output = "Sorry, I couldn’t process that. Please try again or call (817) 249-8683.";
+        let output =
+          "Sorry, I couldn’t process that. Please try again or call (817) 249-8683.";
         if (res.ok) {
           const data = (await res.json()) as { output?: string };
           if (typeof data.output === "string" && data.output.trim()) {
             output = data.output.trim();
           }
         }
-        setMessages((m) => [...m, { id: `b-${Date.now()}`, role: "bot", text: output }]);
+        setMessages((m) => [
+          ...m,
+          { id: `b-${Date.now()}`, role: "bot", text: output },
+        ]);
       } catch {
         setMessages((m) => [
           ...m,
@@ -129,7 +137,7 @@ export function Chatbot() {
         className="fixed bottom-6 right-6 z-[999] flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={open ? "Close chat" : "Open chat"}
       >
-        {open ? <X className="h-7 w-7" /> : <Bot className="h-7 w-7" />}
+        {open ? <X className="h-7 w-7" /> : <AnimatedBotLogo />}
       </button>
 
       {open && (
@@ -158,7 +166,11 @@ export function Chatbot() {
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={msg.role === "user" ? "flex justify-end" : "flex justify-start"}
+                className={
+                  msg.role === "user"
+                    ? "flex justify-end"
+                    : "flex justify-start"
+                }
               >
                 <div
                   className={
@@ -224,7 +236,9 @@ export function Chatbot() {
           </form>
 
           <div className="flex items-center justify-center gap-2 border-t border-border bg-muted/40 px-3 py-2">
-            <span className="text-[10px] text-muted-foreground">Powered by</span>
+            <span className="text-[10px] text-muted-foreground">
+              Powered by
+            </span>
             <a
               href="https://starfishhealth.app"
               target="_blank"

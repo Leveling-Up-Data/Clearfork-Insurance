@@ -23,12 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
   QuoteAssistantModal,
@@ -291,11 +286,15 @@ export default function GetAQuotePage() {
     try {
       let recaptchaToken: string | undefined;
       const win = window as unknown as {
-        grecaptcha?: { execute: (key: string, opts: { action: string }) => Promise<string> };
+        grecaptcha?: {
+          execute: (key: string, opts: { action: string }) => Promise<string>;
+        };
       };
       const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
       if (win.grecaptcha && siteKey) {
-        recaptchaToken = await win.grecaptcha.execute(siteKey, { action: "quote_submit" });
+        recaptchaToken = await win.grecaptcha.execute(siteKey, {
+          action: "quote_submit",
+        });
       }
 
       const response = await fetch("/api/quote-submit", {
@@ -328,8 +327,7 @@ export default function GetAQuotePage() {
   const handleAssistantSubmit = () => {
     toast({
       title: "Quote request submitted!",
-      description:
-        "We'll review your information and get back to you shortly.",
+      description: "We'll review your information and get back to you shortly.",
     });
     form.reset(defaultQuoteValues);
     setUploadedFile(null);
@@ -378,23 +376,16 @@ export default function GetAQuotePage() {
     if (!tip) return null;
     const fieldLabel = QUOTE_FIELD_LABELS[name];
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className="inline-flex shrink-0 ml-1 rounded-sm text-muted-foreground hover:text-primary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label={`Field help: ${fieldLabel}`}
-            onClick={() => {
-              assistantRef.current?.showFieldHelp(fieldLabel, tip);
-            }}
-          >
-            <Info size={14} className="pointer-events-none" aria-hidden />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[220px] text-xs">
-          {tip}
-        </TooltipContent>
-      </Tooltip>
+      <button
+        type="button"
+        className="inline-flex shrink-0 ml-1 rounded-sm text-muted-foreground hover:text-primary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label={`Field help: ${fieldLabel}, click to ask the agent`}
+        onClick={() => {
+          assistantRef.current?.showFieldHelp(fieldLabel, tip);
+        }}
+      >
+        <Info size={14} className="pointer-events-none" aria-hidden />
+      </button>
     );
   };
 
@@ -513,7 +504,11 @@ export default function GetAQuotePage() {
         </section>
 
         {!clientReady ? (
-          <section className="py-12" aria-busy="true" aria-label="Loading quote form">
+          <section
+            className="py-12"
+            aria-busy="true"
+            aria-label="Loading quote form"
+          >
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto space-y-6">
                 <div className="h-28 rounded-xl bg-muted/80 animate-pulse" />
@@ -533,353 +528,379 @@ export default function GetAQuotePage() {
           </section>
         ) : (
           <>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.docx,.doc"
-          className="hidden"
-          onChange={handleFileInput}
-        />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,.doc"
+              className="hidden"
+              onChange={handleFileInput}
+            />
 
-        {/* Main Content */}
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              {/* Upload status bar */}
-              <div
-                id="quote-upload-banner"
-                className="mb-10 scroll-mt-24"
-                role={isUploading ? "status" : undefined}
-                aria-busy={isUploading ? true : undefined}
-                aria-live={isUploading ? "polite" : undefined}
-              >
-                {isUploading ? (
-                  <DocumentProcessingBanner />
-                ) : uploadedFile ? (
-                  <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-lg shadow-primary/20 p-5 transition-colors">
-                  <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0" />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">
-                            {uploadedFile.name}
-                          </span>
-                          <button
-                            onClick={() => setUploadedFile(null)}
-                            className="text-muted-foreground hover:text-foreground"
+            {/* Main Content */}
+            <section className="py-12">
+              <div className="container mx-auto px-4">
+                <div className="max-w-4xl mx-auto">
+                  {/* Upload status bar */}
+                  <div
+                    id="quote-upload-banner"
+                    className="mb-10 scroll-mt-24"
+                    role={isUploading ? "status" : undefined}
+                    aria-busy={isUploading ? true : undefined}
+                    aria-live={isUploading ? "polite" : undefined}
+                  >
+                    {isUploading ? (
+                      <DocumentProcessingBanner />
+                    ) : uploadedFile ? (
+                      <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-lg shadow-primary/20 p-5 transition-colors">
+                        <div className="flex items-center justify-between gap-4 flex-wrap">
+                          <div className="flex items-center gap-3">
+                            <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0" />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium">
+                                  {uploadedFile.name}
+                                </span>
+                                <button
+                                  onClick={() => setUploadedFile(null)}
+                                  className="text-muted-foreground hover:text-foreground"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                              <p className="text-xs text-green-600 mt-0.5">
+                                Document processed — form fields updated
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
                           >
-                            <X size={14} />
-                          </button>
+                            Upload different file
+                          </Button>
                         </div>
-                        <p className="text-xs text-green-600 mt-0.5">
-                          Document processed — form fields updated
-                        </p>
                       </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      Upload different file
-                    </Button>
-                  </div>
-                  </div>
-                ) : (
-                  <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-lg shadow-primary/20 p-5 transition-colors flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0">
-                        <Upload className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          Have a declarations page? Drag & drop it anywhere on
-                          this page
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          PDF or DOCX — we'll extract the info and auto-fill the
-                          form for you
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-primary/80 text-primary bg-primary/[0.12] hover:bg-primary/20 hover:border-primary shadow-md focus-visible:ring-primary/50 font-medium"
-                    >
-                      Browse Files
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Form */}
-              <FormProvider {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-10"
-                >
-                  {/* Personal Information */}
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-1">
-                      Personal Information
-                    </h2>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Required fields are marked with *
-                    </p>
-                    <div className="grid md:grid-cols-2 gap-5">
-                      {renderField("firstName", "First Name", {
-                        required: true,
-                        placeholder: "John",
-                      })}
-                      {renderField("lastName", "Last Name", {
-                        required: true,
-                        placeholder: "Doe",
-                      })}
-                      {renderField("dateOfBirth", "Date of Birth", {
-                        required: true,
-                        placeholder: "MM/DD/YYYY",
-                      })}
-                      {renderSelect(
-                        "maritalStatus",
-                        "Marital Status",
-                        [
-                          "Single",
-                          "Married",
-                          "Separated",
-                          "Divorced",
-                          "Widowed",
-                        ],
-                        { required: true },
-                      )}
-                      {renderSelect(
-                        "gender",
-                        "Gender",
-                        ["Female", "Male", "Non-specified"],
-                        { required: true },
-                      )}
-                      {renderField("emailAddress", "Email Address", {
-                        type: "email",
-                        required: true,
-                        placeholder: "john@example.com",
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Contact & Address */}
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-6">
-                      Contact & Address
-                    </h2>
-                    <div className="grid md:grid-cols-2 gap-5">
-                      {renderField("streetAddress", "Street Address", {
-                        required: true,
-                        placeholder: "123 Main St",
-                      })}
-                      <div className="space-y-2" ref={stateFieldRef}>
-                        <Label
-                          htmlFor="state"
-                          className="text-sm font-medium flex items-center"
+                    ) : (
+                      <div className="rounded-xl border-2 border-primary bg-gradient-to-r from-primary/[0.2] via-primary/[0.06] to-primary/[0.14] ring-2 ring-primary/45 shadow-lg shadow-primary/20 p-5 transition-colors flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0">
+                            <Upload className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              Have a declarations page? Drag & drop it anywhere
+                              on this page
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              PDF or DOCX — we'll extract the info and auto-fill
+                              the form for you
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="border-2 border-primary/80 text-primary bg-primary/[0.12] hover:bg-primary/20 hover:border-primary shadow-md focus-visible:ring-primary/50 font-medium"
                         >
-                          State <span className="text-red-500">*</span>
-                          {renderInfoIcon("state")}
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="state"
-                            autoComplete="off"
-                            placeholder="Type state (e.g. Texas)"
-                            value={stateValue}
-                            onFocus={() => setStateOptionsOpen(true)}
-                            onChange={(e) => {
-                              setValue("state", e.target.value, {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              });
-                              setStateOptionsOpen(true);
-                            }}
-                            className={cn(
-                              "pr-10",
-                              errors.state &&
-                                "border-red-500 focus-visible:ring-red-500",
-                            )}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setStateOptionsOpen((prev) => !prev)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            aria-label="Toggle states list"
-                          >
-                            <ChevronDown className="h-4 w-4" />
-                          </button>
+                          Browse Files
+                        </Button>
+                      </div>
+                    )}
+                  </div>
 
-                          {stateOptionsOpen && (
-                            <div className="absolute top-full left-0 right-0 mt-1 z-30 max-h-60 overflow-y-auto rounded-md border border-border bg-white shadow-lg">
-                              {filteredStates.length > 0 ? (
-                                filteredStates.map((stateName) => (
-                                  <button
-                                    key={stateName}
-                                    type="button"
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => {
-                                      setValue("state", stateName, {
-                                        shouldValidate: true,
-                                        shouldDirty: true,
-                                      });
-                                      setStateOptionsOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 text-sm hover:bg-muted"
-                                  >
-                                    {stateName}
-                                  </button>
-                                ))
-                              ) : (
-                                <p className="px-3 py-2 text-sm text-muted-foreground">
-                                  No matching state found
-                                </p>
+                  {/* Form */}
+                  <FormProvider {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-10"
+                    >
+                      {/* Personal Information */}
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground mb-1">
+                          Personal Information
+                        </h2>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Required fields are marked with *
+                        </p>
+                        <div className="grid md:grid-cols-2 gap-5">
+                          {renderField("firstName", "First Name", {
+                            required: true,
+                            placeholder: "John",
+                          })}
+                          {renderField("lastName", "Last Name", {
+                            required: true,
+                            placeholder: "Doe",
+                          })}
+                          {renderField("dateOfBirth", "Date of Birth", {
+                            required: true,
+                            placeholder: "MM/DD/YYYY",
+                          })}
+                          {renderSelect(
+                            "maritalStatus",
+                            "Marital Status",
+                            [
+                              "Single",
+                              "Married",
+                              "Separated",
+                              "Divorced",
+                              "Widowed",
+                            ],
+                            { required: true },
+                          )}
+                          {renderSelect(
+                            "gender",
+                            "Gender",
+                            ["Female", "Male", "Non-specified"],
+                            { required: true },
+                          )}
+                          {renderField("emailAddress", "Email Address", {
+                            type: "email",
+                            required: true,
+                            placeholder: "john@example.com",
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Contact & Address */}
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground mb-6">
+                          Contact & Address
+                        </h2>
+                        <div className="grid md:grid-cols-2 gap-5">
+                          {renderField("streetAddress", "Street Address", {
+                            required: true,
+                            placeholder: "123 Main St",
+                          })}
+                          <div className="space-y-2" ref={stateFieldRef}>
+                            <Label
+                              htmlFor="state"
+                              className="text-sm font-medium flex items-center"
+                            >
+                              State <span className="text-red-500">*</span>
+                              {renderInfoIcon("state")}
+                            </Label>
+                            <div className="relative">
+                              <Input
+                                id="state"
+                                autoComplete="off"
+                                placeholder="Type state (e.g. Texas)"
+                                value={stateValue}
+                                onFocus={() => setStateOptionsOpen(true)}
+                                onChange={(e) => {
+                                  setValue("state", e.target.value, {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                  });
+                                  setStateOptionsOpen(true);
+                                }}
+                                className={cn(
+                                  "pr-10",
+                                  errors.state &&
+                                    "border-red-500 focus-visible:ring-red-500",
+                                )}
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setStateOptionsOpen((prev) => !prev)
+                                }
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                aria-label="Toggle states list"
+                              >
+                                <ChevronDown className="h-4 w-4" />
+                              </button>
+
+                              {stateOptionsOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-1 z-30 max-h-60 overflow-y-auto rounded-md border border-border bg-white shadow-lg">
+                                  {filteredStates.length > 0 ? (
+                                    filteredStates.map((stateName) => (
+                                      <button
+                                        key={stateName}
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={() => {
+                                          setValue("state", stateName, {
+                                            shouldValidate: true,
+                                            shouldDirty: true,
+                                          });
+                                          setStateOptionsOpen(false);
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted"
+                                      >
+                                        {stateName}
+                                      </button>
+                                    ))
+                                  ) : (
+                                    <p className="px-3 py-2 text-sm text-muted-foreground">
+                                      No matching state found
+                                    </p>
+                                  )}
+                                </div>
                               )}
                             </div>
+                            {errors.state && (
+                              <p className="text-xs text-red-500 flex items-center gap-1">
+                                <AlertCircle size={12} /> {errors.state.message}
+                              </p>
+                            )}
+                          </div>
+                          {renderField("zipCode", "Zip Code", {
+                            required: true,
+                            placeholder: "76109",
+                          })}
+                          {renderField("phoneNumber", "Phone Number", {
+                            required: true,
+                            placeholder: "(817) 555-0123",
+                          })}
+                          {renderSelect(
+                            "canReceiveTexts",
+                            "Can You Receive Texts?",
+                            ["Yes", "No"],
                           )}
                         </div>
-                        {errors.state && (
-                          <p className="text-xs text-red-500 flex items-center gap-1">
-                            <AlertCircle size={12} /> {errors.state.message}
-                          </p>
-                        )}
                       </div>
-                      {renderField("zipCode", "Zip Code", {
-                        required: true,
-                        placeholder: "76109",
-                      })}
-                      {renderField("phoneNumber", "Phone Number", {
-                        required: true,
-                        placeholder: "(817) 555-0123",
-                      })}
-                      {renderSelect(
-                        "canReceiveTexts",
-                        "Can You Receive Texts?",
-                        ["Yes", "No"],
-                      )}
-                    </div>
-                  </div>
 
-                  {/* Driver & Vehicle Information */}
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-6">
-                      Driver & Vehicle Information
-                    </h2>
-                    <div className="grid md:grid-cols-2 gap-5">
-                      {renderField(
-                        "driverLicenseNumber",
-                        "Driver License Number",
-                        { required: true },
-                      )}
-                      {renderField(
-                        "socialSecurityNumber",
-                        "Social Security Number",
-                        { placeholder: "Optional" },
-                      )}
-                      {renderField("vinNumber", "VIN Number", {
-                        placeholder: "Vehicle Identification Number",
-                      })}
-                      {renderSelect("vehicleUse", "Vehicle Use", [
-                        "Commute to work or school",
-                        "Pleasure",
-                        "Business",
-                      ])}
-                      {renderSelect(
-                        "estimatedAnnualMileage",
-                        "Estimated Annual Mileage",
-                        ["1-5K", "6-10K", "11-15K", "15K+"],
-                      )}
-                    </div>
-                  </div>
+                      {/* Driver & Vehicle Information */}
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground mb-6">
+                          Driver & Vehicle Information
+                        </h2>
+                        <div className="grid md:grid-cols-2 gap-5">
+                          {renderField(
+                            "driverLicenseNumber",
+                            "Driver License Number",
+                            { required: true },
+                          )}
+                          {renderField(
+                            "socialSecurityNumber",
+                            "Social Security Number",
+                            { placeholder: "Optional" },
+                          )}
+                          {renderField("vinNumber", "VIN Number", {
+                            placeholder: "Vehicle Identification Number",
+                          })}
+                          {renderSelect("vehicleUse", "Vehicle Use", [
+                            "Commute to work or school",
+                            "Pleasure",
+                            "Business",
+                          ])}
+                          {renderSelect(
+                            "estimatedAnnualMileage",
+                            "Estimated Annual Mileage",
+                            ["1-5K", "6-10K", "11-15K", "15K+"],
+                          )}
+                        </div>
+                      </div>
 
-                  {/* Additional Driver */}
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-1">
-                      Additional Driver
-                    </h2>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      If applicable, add details for additional drivers on the
-                      policy.
-                    </p>
-                    <div className="grid md:grid-cols-2 gap-5">
-                      {renderField("additionalDriverFirstName", "First Name", {
-                        placeholder: "Optional",
-                      })}
-                      {renderField("additionalDriverLastName", "Last Name", {
-                        placeholder: "Optional",
-                      })}
-                      {renderField("additionalDriverDOB", "Date of Birth", {
-                        placeholder: "MM/DD/YYYY",
-                      })}
-                      {renderField(
-                        "additionalDriverLicense",
-                        "Driver License Number",
-                        { placeholder: "Optional" },
-                      )}
-                    </div>
-                  </div>
+                      {/* Additional Driver */}
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground mb-1">
+                          Additional Driver
+                        </h2>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          If applicable, add details for additional drivers on
+                          the policy.
+                        </p>
+                        <div className="grid md:grid-cols-2 gap-5">
+                          {renderField(
+                            "additionalDriverFirstName",
+                            "First Name",
+                            {
+                              placeholder: "Optional",
+                            },
+                          )}
+                          {renderField(
+                            "additionalDriverLastName",
+                            "Last Name",
+                            {
+                              placeholder: "Optional",
+                            },
+                          )}
+                          {renderField("additionalDriverDOB", "Date of Birth", {
+                            placeholder: "MM/DD/YYYY",
+                          })}
+                          {renderField(
+                            "additionalDriverLicense",
+                            "Driver License Number",
+                            { placeholder: "Optional" },
+                          )}
+                        </div>
+                      </div>
 
-                  {/* Discount Information */}
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-1">
-                      Discount Information
-                    </h2>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Optional — may help us find you better rates.
-                    </p>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {renderField("occupation", "Occupation", {
-                        placeholder: "Your occupation",
-                      })}
-                      {renderField("militaryService", "Military Service", {
-                        placeholder: "Branch",
-                      })}
-                      {renderSelect("isStudent", "Are You a Student?", [
-                        "Yes",
-                        "No",
-                      ])}
-                    </div>
-                  </div>
+                      {/* Discount Information */}
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground mb-1">
+                          Discount Information
+                        </h2>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Optional — may help us find you better rates.
+                        </p>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                          {renderField("occupation", "Occupation", {
+                            placeholder: "Your occupation",
+                          })}
+                          {renderField("militaryService", "Military Service", {
+                            placeholder: "Branch",
+                          })}
+                          {renderSelect("isStudent", "Are You a Student?", [
+                            "Yes",
+                            "No",
+                          ])}
+                        </div>
+                      </div>
 
-                  {/* Submit */}
-                  <div className="pt-4 border-t">
-                    <Button
-                      type="submit"
-                      size="lg"
-                      disabled={isSubmitting}
-                      className="w-full md:w-auto px-12 py-6 text-lg"
-                    >
-                      {isSubmitting ? "Submitting..." : "Submit Quote Request"}
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-3">
-                      Your information is secure and will only be used to
-                      provide your quote. This site is protected by reCAPTCHA
-                      and the Google{" "}
-                      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a>{" "}
-                      and{" "}
-                      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a>{" "}
-                      apply.
-                    </p>
-                  </div>
-                </form>
-              </FormProvider>
-            </div>
-          </div>
-        </section>
+                      {/* Submit */}
+                      <div className="pt-4 border-t">
+                        <Button
+                          type="submit"
+                          size="lg"
+                          disabled={isSubmitting}
+                          className="w-full md:w-auto px-12 py-6 text-lg"
+                        >
+                          {isSubmitting
+                            ? "Submitting..."
+                            : "Submit Quote Request"}
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-3">
+                          Your information is secure and will only be used to
+                          provide your quote. This site is protected by
+                          reCAPTCHA and the Google{" "}
+                          <a
+                            href="https://policies.google.com/privacy"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                          >
+                            Privacy Policy
+                          </a>{" "}
+                          and{" "}
+                          <a
+                            href="https://policies.google.com/terms"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                          >
+                            Terms of Service
+                          </a>{" "}
+                          apply.
+                        </p>
+                      </div>
+                    </form>
+                  </FormProvider>
+                </div>
+              </div>
+            </section>
 
-        {/* AI Assistant */}
-        <QuoteAssistantModal
-          ref={assistantRef}
-          form={form}
-          onSubmit={handleAssistantSubmit}
-          onOpenChange={setPanelOpen}
-          onDocumentProcessingChange={setIsUploading}
-        />
+            {/* AI Assistant */}
+            <QuoteAssistantModal
+              ref={assistantRef}
+              form={form}
+              onSubmit={handleAssistantSubmit}
+              onOpenChange={setPanelOpen}
+              onDocumentProcessingChange={setIsUploading}
+            />
           </>
         )}
       </div>

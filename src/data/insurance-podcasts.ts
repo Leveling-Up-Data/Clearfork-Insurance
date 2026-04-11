@@ -11,19 +11,24 @@ export type InsurancePodcastShowcase = {
   authorSubtitle: string;
   /** Spotify, Apple Podcasts, or any public listen link */
   listenUrl: string;
+  /** Optional: Direct audio file URL for playable episodes */
+  audioUrl?: string;
 };
 
 export const INSURANCE_PODCAST_SHOWCASES: InsurancePodcastShowcase[] = [
   {
-    id: "rv",
-    title: "RV Insurance: Protecting Your Adventures",
+    id: "cyber-small-biz",
+    title: "Small Business Cyber Insurance: What Every Owner Needs",
     excerpt:
-      "Choosing coverage limits, full-timer options, and what to watch for with towing, storage, and roadside help.",
+      "Learn how cyber coverage helps small businesses respond to incidents—breach response, ransomware, and business interruption protection.",
     image: img("/images/group photo 1 (1)_1761008519000.jpg"),
     avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
     authorName: "David Hargrove",
     authorSubtitle: "Owner",
-    listenUrl: "https://open.spotify.com/show/3yVcLzTuxVS2bXbc5dNDsG",
+    listenUrl:
+      "https://podcasts.apple.com/us/podcast/small-business-cyber-insurance-what-every-owner-needs/id1784323702?i=1000758920368",
+    audioUrl:
+      "https://d3ctxlq1ktw2nl.cloudfront.net/staging/2026-3-2/421296131-44100-2-ab8a32d1c593e.mp3",
   },
   {
     id: "cyber",

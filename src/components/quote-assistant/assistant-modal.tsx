@@ -1,13 +1,28 @@
 "use client";
 
-import { useState, useEffect, forwardRef, useImperativeHandle, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+  useRef,
+} from "react";
 import { UseFormReturn } from "react-hook-form";
 import { X, Bot, Send, Upload, Loader2, CircleHelp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { QuoteAssistantProvider, type QuoteAssistantContextType } from "./assistant-context";
+import { AnimatedBotLogo } from "@/components/animated-bot-logo";
+import {
+  QuoteAssistantProvider,
+  type QuoteAssistantContextType,
+} from "./assistant-context";
 import { DocumentProcessingBanner } from "./document-processing-banner";
 import type { QuoteFormValues } from "@/lib/quote-types";
 import {
@@ -25,7 +40,10 @@ interface ChatMessage {
 export type QuoteAssistantHandle = {
   askQuestion: (q: string, d?: string) => void;
   openAssistant: () => void;
-  handleMissingFields: (missingFields: string[], filledFields: string[]) => void;
+  handleMissingFields: (
+    missingFields: string[],
+    filledFields: string[],
+  ) => void;
   showFieldHelp: (fieldLabel: string, helpText: string) => void;
 };
 
@@ -38,8 +56,16 @@ interface AssistantModalProps {
 }
 
 const REQUIRED_FIELD_KEYS: Array<keyof QuoteFormValues> = [
-  "firstName", "lastName", "dateOfBirth", "maritalStatus", "gender",
-  "streetAddress", "state", "zipCode", "phoneNumber", "emailAddress",
+  "firstName",
+  "lastName",
+  "dateOfBirth",
+  "maritalStatus",
+  "gender",
+  "streetAddress",
+  "state",
+  "zipCode",
+  "phoneNumber",
+  "emailAddress",
   "driverLicenseNumber",
 ];
 
@@ -52,24 +78,44 @@ const SELECT_OPTIONS: Partial<Record<keyof QuoteFormValues, string[]>> = {
   isStudent: ["Yes", "No"],
 };
 
-const YES_VARIANTS = ["yes", "yeah", "yep", "yup", "sure", "y", "ok", "okay", "affirmative", "absolutely", "of course", "definitely"];
+const YES_VARIANTS = [
+  "yes",
+  "yeah",
+  "yep",
+  "yup",
+  "sure",
+  "y",
+  "ok",
+  "okay",
+  "affirmative",
+  "absolutely",
+  "of course",
+  "definitely",
+];
 const NO_VARIANTS = ["no", "nope", "nah", "n", "negative", "not really"];
 
-function validateFieldValue(fieldKey: keyof QuoteFormValues, value: string): string | null {
+function validateFieldValue(
+  fieldKey: keyof QuoteFormValues,
+  value: string,
+): string | null {
   const v = value.trim();
   switch (fieldKey) {
     case "dateOfBirth":
     case "additionalDriverDOB":
-      if (!/\d/.test(v) || /^[a-zA-Z\s]+$/.test(v)) return "Please enter a valid date (MM/DD/YYYY).";
+      if (!/\d/.test(v) || /^[a-zA-Z\s]+$/.test(v))
+        return "Please enter a valid date (MM/DD/YYYY).";
       return null;
     case "zipCode":
-      if (!/^\d{3,9}$/.test(v.replace(/[-\s]/g, ""))) return "Please enter a valid zip code (3-9 digits).";
+      if (!/^\d{3,9}$/.test(v.replace(/[-\s]/g, "")))
+        return "Please enter a valid zip code (3-9 digits).";
       return null;
     case "phoneNumber":
-      if (!/\d{7,}/.test(v.replace(/\D/g, ""))) return "Please enter a valid phone number.";
+      if (!/\d{7,}/.test(v.replace(/\D/g, "")))
+        return "Please enter a valid phone number.";
       return null;
     case "emailAddress":
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Please enter a valid email address.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))
+        return "Please enter a valid email address.";
       return null;
     case "maritalStatus":
     case "gender":
@@ -81,10 +127,14 @@ function validateFieldValue(fieldKey: keyof QuoteFormValues, value: string): str
       if (!options) return null;
       const lower = v.toLowerCase();
       if (options.includes("Yes") && options.includes("No")) {
-        if (YES_VARIANTS.includes(lower) || NO_VARIANTS.includes(lower)) return null;
+        if (YES_VARIANTS.includes(lower) || NO_VARIANTS.includes(lower))
+          return null;
       }
       const match = options.find(
-        (o) => o.toLowerCase() === lower || o.toLowerCase().startsWith(lower) || lower.startsWith(o.toLowerCase())
+        (o) =>
+          o.toLowerCase() === lower ||
+          o.toLowerCase().startsWith(lower) ||
+          lower.startsWith(o.toLowerCase()),
       );
       if (!match) return `Please choose one of: ${options.join(", ")}.`;
       return null;
@@ -97,12 +147,18 @@ function validateFieldValue(fieldKey: keyof QuoteFormValues, value: string): str
 
 function cleanUserInput(raw: string): string {
   return raw
-    .replace(/^(its|it is|it's|that is|that's|mine is|my|i'm|i am|i have|i live in|i stay in|i reside in|we live in)\s+/i, "")
+    .replace(
+      /^(its|it is|it's|that is|that's|mine is|my|i'm|i am|i have|i live in|i stay in|i reside in|we live in)\s+/i,
+      "",
+    )
     .replace(/^(the\s+)?(answer|value)\s+(is|=)\s+/i, "")
     .trim();
 }
 
-function normalizeForSelect(fieldKey: keyof QuoteFormValues, rawValue: string): string {
+function normalizeForSelect(
+  fieldKey: keyof QuoteFormValues,
+  rawValue: string,
+): string {
   const options = SELECT_OPTIONS[fieldKey];
   if (!options) return rawValue;
 
@@ -116,21 +172,30 @@ function normalizeForSelect(fieldKey: keyof QuoteFormValues, rawValue: string): 
   const exact = options.find((o) => o.toLowerCase() === lower);
   if (exact) return exact;
 
-  const partial = options.find((o) => o.toLowerCase().startsWith(lower) || lower.startsWith(o.toLowerCase()));
+  const partial = options.find(
+    (o) =>
+      o.toLowerCase().startsWith(lower) || lower.startsWith(o.toLowerCase()),
+  );
   if (partial) return partial;
 
   return rawValue;
 }
 
-export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantModalProps>(function QuoteAssistantModal(
+export const QuoteAssistantModal = forwardRef<
+  QuoteAssistantHandle,
+  AssistantModalProps
+>(function QuoteAssistantModal(
   { form, onSubmit, onOpenChange, onDocumentProcessingChange },
   ref,
 ) {
   const [open, setOpenState] = useState(true);
-  const setOpen = useCallback((value: boolean) => {
-    setOpenState(value);
-    onOpenChange?.(value);
-  }, [onOpenChange]);
+  const setOpen = useCallback(
+    (value: boolean) => {
+      setOpenState(value);
+      onOpenChange?.(value);
+    },
+    [onOpenChange],
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -145,19 +210,28 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
   const pendingFieldRef = useRef<keyof QuoteFormValues | null>(null);
   const skippedFieldsRef = useRef<Set<keyof QuoteFormValues>>(new Set());
 
-  const extractFieldFromPattern = (rawInput: string): { field: keyof QuoteFormValues; value: string } | null => {
+  const extractFieldFromPattern = (
+    rawInput: string,
+  ): { field: keyof QuoteFormValues; value: string } | null => {
     const lowerInput = rawInput.toLowerCase().trim();
     const match = lowerInput.match(/^(.+?)\s+is\s+(.+)$/i);
     if (match) {
-      const normalize = (name: string) => name.replace(/^(the|my|a|an)\s+/i, "").trim();
+      const normalize = (name: string) =>
+        name.replace(/^(the|my|a|an)\s+/i, "").trim();
       const fieldName = normalize(match[1]);
       const value = match[2].trim();
       const fieldKey = FIELD_NAME_MAP[fieldName];
       if (fieldKey) return { field: fieldKey, value };
-      const sorted = Object.entries(FIELD_NAME_MAP).sort((a, b) => b[0].length - a[0].length);
+      const sorted = Object.entries(FIELD_NAME_MAP).sort(
+        (a, b) => b[0].length - a[0].length,
+      );
       for (const [alias, key] of sorted) {
         const normalizedAlias = normalize(alias);
-        if (normalizedAlias === fieldName || normalizedAlias.includes(fieldName) || fieldName.includes(normalizedAlias)) {
+        if (
+          normalizedAlias === fieldName ||
+          normalizedAlias.includes(fieldName) ||
+          fieldName.includes(normalizedAlias)
+        ) {
           return { field: key, value };
         }
       }
@@ -225,7 +299,9 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     if (!form) return;
     const missingRequired = getMissingRequiredFields();
     if (missingRequired.length > 0) {
-      const nextRequired = CONVERSATION_FLOW.find(({ key }) => missingRequired.includes(key));
+      const nextRequired = CONVERSATION_FLOW.find(({ key }) =>
+        missingRequired.includes(key),
+      );
       if (nextRequired) {
         pendingFieldRef.current = nextRequired.key;
         appendMessage({ role: "bot", text: nextRequired.question });
@@ -242,54 +318,69 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
       }
     }
     pendingFieldRef.current = null;
-    appendMessage({ role: "bot", text: "All fields are filled! Review the form and say 'submit' when you're ready." });
+    appendMessage({
+      role: "bot",
+      text: "All fields are filled! Review the form and say 'submit' when you're ready.",
+    });
   };
 
-  const callGemini = useCallback(async (userText: string, isQuestion: boolean = false) => {
-    if (!form) {
-      appendMessage({ role: "bot", text: "Form is not ready yet. Please wait a moment." });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/quote-assistant", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user: userText,
-          currentForm: form.getValues(),
-          pending: pendingFieldRef.current || getNextEmptyField(),
-          isQuestion,
-        }),
-      });
-      if (!response.ok) throw new Error("API request failed");
-      const data = await response.json();
-      const { updates = {}, submit = false, reply = "" } = data;
+  const callGemini = useCallback(
+    async (userText: string, isQuestion: boolean = false) => {
+      if (!form) {
+        appendMessage({
+          role: "bot",
+          text: "Form is not ready yet. Please wait a moment.",
+        });
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/quote-assistant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user: userText,
+            currentForm: form.getValues(),
+            pending: pendingFieldRef.current || getNextEmptyField(),
+            isQuestion,
+          }),
+        });
+        if (!response.ok) throw new Error("API request failed");
+        const data = await response.json();
+        const { updates = {}, submit = false, reply = "" } = data;
 
-      if (!isQuestion && Object.keys(updates).length > 0) {
-        applyUpdates(updates);
-        const filledFields = Object.keys(updates)
-          .map((k) => QUOTE_FIELD_LABELS[k as keyof QuoteFormValues] || k)
-          .join(", ");
-        appendMessage({ role: "bot", text: reply || `Got it! I've filled in: ${filledFields}.` });
-        pendingFieldRef.current = null;
-        if (!submit) setTimeout(() => askNextQuestion(), 400);
-      } else if (reply) {
-        appendMessage({ role: "bot", text: reply });
-        if (!isQuestion && !submit) {
+        if (!isQuestion && Object.keys(updates).length > 0) {
+          applyUpdates(updates);
+          const filledFields = Object.keys(updates)
+            .map((k) => QUOTE_FIELD_LABELS[k as keyof QuoteFormValues] || k)
+            .join(", ");
+          appendMessage({
+            role: "bot",
+            text: reply || `Got it! I've filled in: ${filledFields}.`,
+          });
           pendingFieldRef.current = null;
-          setTimeout(() => askNextQuestion(), 400);
+          if (!submit) setTimeout(() => askNextQuestion(), 400);
+        } else if (reply) {
+          appendMessage({ role: "bot", text: reply });
+          if (!isQuestion && !submit) {
+            pendingFieldRef.current = null;
+            setTimeout(() => askNextQuestion(), 400);
+          }
         }
+        if (submit) {
+          runAssistantSubmit();
+        }
+      } catch {
+        appendMessage({
+          role: "bot",
+          text: "I encountered an error. Please try again or fill in the fields manually.",
+        });
+      } finally {
+        setIsLoading(false);
       }
-      if (submit) {
-        runAssistantSubmit();
-      }
-    } catch {
-      appendMessage({ role: "bot", text: "I encountered an error. Please try again or fill in the fields manually." });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [form, appendMessage, runAssistantSubmit]);
+    },
+    [form, appendMessage, runAssistantSubmit],
+  );
 
   const handleDocumentUpload = async (file: File) => {
     setIsUploading(true);
@@ -300,7 +391,10 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
       const formData = new FormData();
       formData.append("file", file);
       formData.append("currentForm", JSON.stringify(form.getValues()));
-      const response = await fetch("/api/quote-assistant/upload", { method: "POST", body: formData });
+      const response = await fetch("/api/quote-assistant/upload", {
+        method: "POST",
+        body: formData,
+      });
       const data = (await response.json().catch(() => ({}))) as {
         updates?: Record<string, string>;
         reply?: string;
@@ -341,7 +435,9 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
 
       const stillMissing = getMissingRequiredFields();
       if (stillMissing.length > 0) {
-        const missingLabels = stillMissing.map((k) => QUOTE_FIELD_LABELS[k]).join(", ");
+        const missingLabels = stillMissing
+          .map((k) => QUOTE_FIELD_LABELS[k])
+          .join(", ");
         appendMessage({
           role: "bot",
           text: `I still need the following required information: ${missingLabels}.\n\nLet me ask you about each one.`,
@@ -354,7 +450,10 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
         });
       }
     } catch {
-      appendMessage({ role: "bot", text: "I had trouble processing that document. Please try again." });
+      appendMessage({
+        role: "bot",
+        text: "I had trouble processing that document. Please try again.",
+      });
     } finally {
       setIsUploading(false);
       onDocumentProcessingChange?.(false);
@@ -376,7 +475,9 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     if (lower === "submit" || lower === "send" || lower === "done") {
       const missing = getMissingRequiredFields();
       if (missing.length > 0) {
-        const missingLabels = missing.map((k) => QUOTE_FIELD_LABELS[k]).join(", ");
+        const missingLabels = missing
+          .map((k) => QUOTE_FIELD_LABELS[k])
+          .join(", ");
         appendMessage({
           role: "bot",
           text: `Before I can submit, I still need: ${missingLabels}. Let me ask you about those.`,
@@ -387,7 +488,14 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
       }
       return;
     }
-    if (/^(help|support|contact|call|speak|talk|agent|human|representative|phone|assist me|need help)$/i.test(lower) || /\b(help me|need assistance|talk to someone|speak to someone|contact.*agent|call.*someone)\b/i.test(lower)) {
+    if (
+      /^(help|support|contact|call|speak|talk|agent|human|representative|phone|assist me|need help)$/i.test(
+        lower,
+      ) ||
+      /\b(help me|need assistance|talk to someone|speak to someone|contact.*agent|call.*someone)\b/i.test(
+        lower,
+      )
+    ) {
       appendMessage({
         role: "bot",
         text: "Need to speak with someone? You can reach our team directly at (817) 249-8683. We're happy to help! You can also continue filling out the form here and we'll get back to you with a quote.",
@@ -397,44 +505,90 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     if (/\b(start|help|fill)\b.*\bform\b/i.test(trimmed) || lower === "form") {
       const missing = getMissingRequiredFields();
       if (missing.length > 0) {
-        const missingLabels = missing.map((k) => QUOTE_FIELD_LABELS[k]).join(", ");
-        appendMessage({ role: "bot", text: `Let's fill out the missing required fields: ${missingLabels}.` });
+        const missingLabels = missing
+          .map((k) => QUOTE_FIELD_LABELS[k])
+          .join(", ");
+        appendMessage({
+          role: "bot",
+          text: `Let's fill out the missing required fields: ${missingLabels}.`,
+        });
         setTimeout(() => askNextQuestion(), 500);
       } else {
-        appendMessage({ role: "bot", text: "All required fields are filled! Say 'submit' when ready." });
+        appendMessage({
+          role: "bot",
+          text: "All required fields are filled! Say 'submit' when ready.",
+        });
       }
       return;
     }
-    if (/^(hi|hello|hey|howdy|good morning|good afternoon|good evening|sup|what's up|yo|hola|greetings)[\s!.,]*$/i.test(lower)) {
+    if (
+      /^(hi|hello|hey|howdy|good morning|good afternoon|good evening|sup|what's up|yo|hola|greetings)[\s!.,]*$/i.test(
+        lower,
+      )
+    ) {
       if (!pendingFieldRef.current) {
-        appendMessage({ role: "bot", text: "Hello! Welcome to Clearfork Insurance. I'm here to help you get a quote. Let's continue filling out your form." });
+        appendMessage({
+          role: "bot",
+          text: "Hello! Welcome to Clearfork Insurance. I'm here to help you get a quote. Let's continue filling out your form.",
+        });
         setTimeout(() => askNextQuestion(), 500);
       } else {
-        const fieldInfo = CONVERSATION_FLOW.find((f) => f.key === pendingFieldRef.current);
-        appendMessage({ role: "bot", text: `Hello! Let's keep going with your quote. ${fieldInfo?.question || ""}` });
+        const fieldInfo = CONVERSATION_FLOW.find(
+          (f) => f.key === pendingFieldRef.current,
+        );
+        appendMessage({
+          role: "bot",
+          text: `Hello! Let's keep going with your quote. ${fieldInfo?.question || ""}`,
+        });
       }
       return;
     }
-    if (/^(thanks|thank you|thx|ty|appreciate it|cheers|thank u)[\s!.,]*$/i.test(lower)) {
+    if (
+      /^(thanks|thank you|thx|ty|appreciate it|cheers|thank u)[\s!.,]*$/i.test(
+        lower,
+      )
+    ) {
       if (!pendingFieldRef.current) {
-        appendMessage({ role: "bot", text: "You're welcome! Let me continue with the next field." });
+        appendMessage({
+          role: "bot",
+          text: "You're welcome! Let me continue with the next field.",
+        });
         setTimeout(() => askNextQuestion(), 400);
       } else {
-        const fieldInfo = CONVERSATION_FLOW.find((f) => f.key === pendingFieldRef.current);
-        appendMessage({ role: "bot", text: `You're welcome! Now, ${fieldInfo?.question?.toLowerCase() || "let's continue."}` });
+        const fieldInfo = CONVERSATION_FLOW.find(
+          (f) => f.key === pendingFieldRef.current,
+        );
+        appendMessage({
+          role: "bot",
+          text: `You're welcome! Now, ${fieldInfo?.question?.toLowerCase() || "let's continue."}`,
+        });
       }
       return;
     }
     if (/^(bye|goodbye|see you|later|gtg|gotta go|cya)[\s!.,]*$/i.test(lower)) {
-      appendMessage({ role: "bot", text: "Goodbye! If you'd like to finish your quote later, just come back anytime. We're here to help!" });
+      appendMessage({
+        role: "bot",
+        text: "Goodbye! If you'd like to finish your quote later, just come back anytime. We're here to help!",
+      });
       return;
     }
-    if (lower === "skip" || lower === "none" || lower === "n/a" || lower === "i don't have" || lower === "no") {
+    if (
+      lower === "skip" ||
+      lower === "none" ||
+      lower === "n/a" ||
+      lower === "i don't have" ||
+      lower === "no"
+    ) {
       if (pendingFieldRef.current) {
         const fieldLabel = QUOTE_FIELD_LABELS[pendingFieldRef.current];
-        const isRequired = REQUIRED_FIELD_KEYS.includes(pendingFieldRef.current);
+        const isRequired = REQUIRED_FIELD_KEYS.includes(
+          pendingFieldRef.current,
+        );
         if (isRequired) {
-          appendMessage({ role: "bot", text: `${fieldLabel} is required and can't be skipped. Please provide a value.` });
+          appendMessage({
+            role: "bot",
+            text: `${fieldLabel} is required and can't be skipped. Please provide a value.`,
+          });
           return;
         }
         skippedFieldsRef.current.add(pendingFieldRef.current);
@@ -452,11 +606,17 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
       const finalValue = normalizeForSelect(fieldKey, cleaned || trimmed);
       const validationError = validateFieldValue(fieldKey, finalValue);
       if (validationError) {
-        appendMessage({ role: "bot", text: `That doesn't look right for ${fieldLabel}. ${validationError}` });
+        appendMessage({
+          role: "bot",
+          text: `That doesn't look right for ${fieldLabel}. ${validationError}`,
+        });
         return;
       }
       applyUpdates({ [fieldKey]: finalValue } as Partial<QuoteFormValues>);
-      appendMessage({ role: "bot", text: `Got it! I've set ${fieldLabel} to "${finalValue}".` });
+      appendMessage({
+        role: "bot",
+        text: `Got it! I've set ${fieldLabel} to "${finalValue}".`,
+      });
       pendingFieldRef.current = null;
       setTimeout(() => askNextQuestion(), 400);
       return;
@@ -464,8 +624,13 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
 
     const fieldPattern = extractFieldFromPattern(trimmed);
     if (fieldPattern) {
-      applyUpdates({ [fieldPattern.field]: fieldPattern.value } as Partial<QuoteFormValues>);
-      appendMessage({ role: "bot", text: `Got it! I've filled in ${QUOTE_FIELD_LABELS[fieldPattern.field]}.` });
+      applyUpdates({
+        [fieldPattern.field]: fieldPattern.value,
+      } as Partial<QuoteFormValues>);
+      appendMessage({
+        role: "bot",
+        text: `Got it! I've filled in ${QUOTE_FIELD_LABELS[fieldPattern.field]}.`,
+      });
       setTimeout(() => askNextQuestion(), 300);
       return;
     }
@@ -480,13 +645,19 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     if (!initRef.current) {
       initRef.current = true;
       onOpenChange?.(true);
-      appendMessage({ role: "bot", text: "Hi! I'll help you get a quote.\n\n\u2022 Answer my questions to fill the form\n\u2022 Upload your declarations page to auto-fill\n\u2022 Say \"skip\" for optional fields\n\u2022 Say \"submit\" when ready" });
+      appendMessage({
+        role: "bot",
+        text: 'Hi! I\'ll help you get a quote.\n\n\u2022 Answer my questions to fill the form\n\u2022 Upload your declarations page to auto-fill\n\u2022 Say "skip" for optional fields\n\u2022 Say "submit" when ready',
+      });
       const firstEmpty = getNextEmptyField();
       if (firstEmpty) {
         const fieldInfo = CONVERSATION_FLOW.find((f) => f.key === firstEmpty);
         if (fieldInfo) {
           pendingFieldRef.current = firstEmpty;
-          setTimeout(() => appendMessage({ role: "bot", text: fieldInfo.question }), 800);
+          setTimeout(
+            () => appendMessage({ role: "bot", text: fieldInfo.question }),
+            800,
+          );
         }
       }
     }
@@ -496,10 +667,14 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     (question: string, description?: string) => {
       if (!open) setOpen(true);
       appendMessage({ role: "user", text: question });
-      if (description) setTimeout(() => appendMessage({ role: "bot", text: description }), 300);
+      if (description)
+        setTimeout(
+          () => appendMessage({ role: "bot", text: description }),
+          300,
+        );
       else setTimeout(() => callGemini(question, true), 300);
     },
-    [open, appendMessage, callGemini]
+    [open, appendMessage, callGemini],
   );
 
   const showFieldHelp = useCallback(
@@ -514,27 +689,36 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     [setOpen, appendMessage],
   );
 
-  const handleMissingFields = useCallback((missingFields: string[], filledFields: string[]) => {
-    if (!open) setOpen(true);
-    if (filledFields.length > 0) {
-      const filledLabels = filledFields
-        .map((k) => QUOTE_FIELD_LABELS[k as keyof QuoteFormValues] || k)
-        .join(", ");
-      appendMessage({ role: "bot", text: `I've extracted and filled in: ${filledLabels}.` });
-    }
-    if (missingFields.length > 0) {
-      const missingLabels = missingFields
-        .map((k) => QUOTE_FIELD_LABELS[k as keyof QuoteFormValues] || k)
-        .join(", ");
-      appendMessage({
-        role: "bot",
-        text: `I still need the following required information: ${missingLabels}.\n\nLet me ask you about each one.`,
-      });
-      setTimeout(() => askNextQuestion(), 800);
-    } else {
-      appendMessage({ role: "bot", text: "All required fields are filled! Review and say 'submit' when ready." });
-    }
-  }, [open, appendMessage]);
+  const handleMissingFields = useCallback(
+    (missingFields: string[], filledFields: string[]) => {
+      if (!open) setOpen(true);
+      if (filledFields.length > 0) {
+        const filledLabels = filledFields
+          .map((k) => QUOTE_FIELD_LABELS[k as keyof QuoteFormValues] || k)
+          .join(", ");
+        appendMessage({
+          role: "bot",
+          text: `I've extracted and filled in: ${filledLabels}.`,
+        });
+      }
+      if (missingFields.length > 0) {
+        const missingLabels = missingFields
+          .map((k) => QUOTE_FIELD_LABELS[k as keyof QuoteFormValues] || k)
+          .join(", ");
+        appendMessage({
+          role: "bot",
+          text: `I still need the following required information: ${missingLabels}.\n\nLet me ask you about each one.`,
+        });
+        setTimeout(() => askNextQuestion(), 800);
+      } else {
+        appendMessage({
+          role: "bot",
+          text: "All required fields are filled! Review and say 'submit' when ready.",
+        });
+      }
+    },
+    [open, appendMessage],
+  );
 
   const assistantContextValue: QuoteAssistantContextType = {
     askQuestion,
@@ -542,12 +726,16 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
     showFieldHelp,
   };
 
-  useImperativeHandle(ref, () => ({
-    askQuestion,
-    openAssistant: () => setOpen(true),
-    handleMissingFields,
-    showFieldHelp,
-  }), [askQuestion, handleMissingFields, showFieldHelp]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      askQuestion,
+      openAssistant: () => setOpen(true),
+      handleMissingFields,
+      showFieldHelp,
+    }),
+    [askQuestion, handleMissingFields, showFieldHelp],
+  );
 
   if (!open) {
     return (
@@ -558,7 +746,7 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
           className="fixed bottom-6 right-6 z-[999] flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Open Quote Assistant"
         >
-          <Bot className="h-7 w-7" aria-hidden />
+          <AnimatedBotLogo />
         </button>
       </QuoteAssistantProvider>
     );
@@ -566,9 +754,7 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
 
   return (
     <QuoteAssistantProvider value={assistantContextValue}>
-      <aside
-        className="fixed right-0 top-0 bottom-0 w-full md:w-[380px] z-50 bg-background border-l border-border flex flex-col shadow-xl"
-      >
+      <aside className="fixed right-0 top-0 bottom-0 w-full md:w-[380px] z-50 bg-background border-l border-border flex flex-col shadow-xl">
         {/* Header */}
         <div className="px-4 pt-4 pb-3 border-b border-primary/20 flex-shrink-0 bg-primary/5">
           <div className="flex items-center justify-between gap-3">
@@ -610,7 +796,7 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
                   "rounded-lg px-3 py-2 max-w-[85%] text-sm",
                   message.role === "user"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                    : "bg-muted text-foreground",
                 )}
               >
                 <p className="whitespace-pre-wrap">{message.text}</p>
@@ -662,10 +848,12 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
                   if (saved.length > 0) {
                     setMessages(saved);
                   } else {
-                    setMessages([{
-                      role: "bot",
-                      text: "Ask mode on.\n\n\u2022 Ask about our insurance services or coverage\n\u2022 Get company contact info or office details\n\u2022 Ask any general insurance questions\n\nTap \"Ask Mode\" again to go back to form filling.",
-                    }]);
+                    setMessages([
+                      {
+                        role: "bot",
+                        text: 'Ask mode on.\n\n\u2022 Ask about our insurance services or coverage\n\u2022 Get company contact info or office details\n\u2022 Ask any general insurance questions\n\nTap "Ask Mode" again to go back to form filling.',
+                      },
+                    ]);
                   }
                   setChatMode("ask");
                 } else {
@@ -685,7 +873,7 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
                 "ml-auto text-xs px-2.5 py-1 rounded-full font-medium transition-all border",
                 chatMode === "ask"
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-transparent text-muted-foreground border-border hover:border-primary hover:text-primary"
+                  : "bg-transparent text-muted-foreground border-border hover:border-primary hover:text-primary",
               )}
             >
               Ask Mode
@@ -718,16 +906,23 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
                   handleSend();
                 }
               }}
-              placeholder={chatMode === "form" ? "Type your answer..." : "Ask me anything about insurance..."}
+              placeholder={
+                chatMode === "form"
+                  ? "Type your answer..."
+                  : "Ask me anything about insurance..."
+              }
               disabled={isLoading || isUploading}
               className="flex-1"
             />
-            <Button onClick={handleSend} disabled={isLoading || isUploading || !input.trim()} size="icon">
+            <Button
+              onClick={handleSend}
+              disabled={isLoading || isUploading || !input.trim()}
+              size="icon"
+            >
               <Send size={18} />
             </Button>
           </div>
 
-          
           <a
             href="https://getstarfish.app/"
             target="_blank"
@@ -735,7 +930,11 @@ export const QuoteAssistantModal = forwardRef<QuoteAssistantHandle, AssistantMod
             className="flex justify-center items-center gap-2 pb-1 hover:opacity-80 transition-opacity"
           >
             <span className="text-xs text-muted-foreground">Powered by</span>
-            <img src="/getStarfish.svg" alt="Starfish" className="h-12 w-auto" />
+            <img
+              src="/getStarfish.svg"
+              alt="Starfish"
+              className="h-12 w-auto"
+            />
           </a>
         </div>
       </aside>

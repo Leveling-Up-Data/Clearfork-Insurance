@@ -57,16 +57,23 @@ function audioUrlFromItem(item: Parser.Item): string | undefined {
 }
 
 function itunesImageHref(item: Parser.Item): string | undefined {
-  const itunes = (item as Parser.Item & { itunes?: { image?: string | { $?: { href?: string } } } })
-    .itunes;
+  const itunes = (
+    item as Parser.Item & {
+      itunes?: { image?: string | { $?: { href?: string } } };
+    }
+  ).itunes;
   const img = itunes?.image;
   if (typeof img === "string") return img;
   const href = img && typeof img === "object" ? img.$?.href : undefined;
   return href;
 }
 
-function channelImageFromFeed(feed: Parser.Output<Record<string, unknown>>): string | undefined {
-  const itunes = feed.itunes as { image?: string | { $?: { href?: string } } } | undefined;
+function channelImageFromFeed(
+  feed: Parser.Output<Record<string, unknown>>,
+): string | undefined {
+  const itunes = feed.itunes as
+    | { image?: string | { $?: { href?: string } } }
+    | undefined;
   const img = itunes?.image;
   if (typeof img === "string") return img;
   return img && typeof img === "object" ? img.$?.href : undefined;
@@ -89,14 +96,18 @@ function pubTime(isoOrRfc?: string): number {
 }
 
 function itunesEpisodeNumber(item: Parser.Item): string | undefined {
-  const it = (item as Parser.Item & { itunes?: { episode?: string | number } }).itunes;
+  const it = (item as Parser.Item & { itunes?: { episode?: string | number } })
+    .itunes;
   const e = it?.episode;
   if (e === undefined || e === null) return undefined;
   return String(e).trim();
 }
 
 /** Hide a specific episode from RSS lists; the next-newest items fill the cap instead. */
-function shouldExcludeRssItem(item: Parser.Item, displayTitle: string): boolean {
+function shouldExcludeRssItem(
+  item: Parser.Item,
+  displayTitle: string,
+): boolean {
   const ep = itunesEpisodeNumber(item);
   if (ep === "39" || ep === "039") return true;
 
