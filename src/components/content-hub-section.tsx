@@ -6,12 +6,15 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { cn } from "@/lib/utils";
+import { INSURANCE_PODCASTS_HOME } from "@/data/insurance-podcasts";
+import type { PodcastEpisode, PodcastFeedResult } from "@/types/podcast-feed";
 
 const img = (path: string) => encodeURI(path);
 
 const BLOG_ITEMS = [
   {
-    title: "Insurance Rates Are a Black Box: Understanding Texas Property Insurance Rates",
+    title:
+      "Insurance Rates Are a Black Box: Understanding Texas Property Insurance Rates",
     excerpt:
       "You open your homeowners renewal and the premium has jumped again — and you are almost certainly not told how that number was calculated. A policy perspective on rate regulation and transparency in Texas.",
     author: "David Hargrove",
@@ -35,11 +38,13 @@ const BLOG_ITEMS = [
 ] as const;
 
 /** Thumbnails from YouTube (see https://img.youtube.com). */
-const ytThumb = (id: string) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+const ytThumb = (id: string) =>
+  `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
 
 const VIDEO_ITEMS = [
   {
-    title: "My Homeowners Insurance Increased My Coverage Without My Permission",
+    title:
+      "My Homeowners Insurance Increased My Coverage Without My Permission",
     excerpt:
       "How replacement cost and underwriting changes can raise your dwelling limit—and your premium—even when you didn’t request more coverage.",
     videoId: "2CVuQ7wJLik",
@@ -57,7 +62,8 @@ const VIDEO_ITEMS = [
     avatar: img("/images/sid hargrove headshot_1761004385331.jpg"),
   },
   {
-    title: "They Are Canceling My Homeowners Insurance Policy Because of Needed Repairs",
+    title:
+      "They Are Canceling My Homeowners Insurance Policy Because of Needed Repairs",
     excerpt:
       "What it means when an insurer ties cancellation or non-renewal to inspection findings, and how to respond before you lose coverage.",
     videoId: "zO4LW1uClnY",
@@ -67,39 +73,58 @@ const VIDEO_ITEMS = [
   },
 ] as const;
 
-/** Replace embed URLs with your production Spotify episode or show URLs when available. */
-const PODCAST_ITEMS = [
-  {
-    title: "RV Insurance: Protecting Your Adventures",
-    excerpt:
-      "Choosing coverage limits, full-timer options, and what to watch for with towing, storage, and roadside help.",
-    image: img("/images/group photo 1 (1)_1761008519000.jpg"),
-    author: "David Hargrove, Owner",
-    avatar: img("/images/david hargrove head shot_1761004385331.jpg"),
-    spotifyEmbedUrl:
-      "https://open.spotify.com/embed/show/3yVcLzTuxVS2bXbc5dNDsG?utm_source=generator",
-  },
-  {
-    title: "Cyber Insurance: What You Need to Know",
-    excerpt:
-      "How cyber coverage helps businesses respond to incidents—breach response, ransomware, and business interruption.",
-    image: img("/images/SCR-20250919-sqme_1758335513957.jpeg"),
-    author: "Sid Hargrove, Owner",
-    avatar: img("/images/sid hargrove headshot_1761004385331.jpg"),
-    spotifyEmbedUrl:
-      "https://open.spotify.com/embed/show/2VRS1IJCTn2Nlkg33S1KG2?utm_source=generator",
-  },
-] as const;
-
 type ModalState =
   | { kind: "video"; videoId: string; title: string }
-  | { kind: "podcast"; embedUrl: string; title: string }
+  | {
+      kind: "podcast";
+      variant: "rss";
+      title: string;
+      excerpt: string;
+      audioUrl: string;
+    }
+  | {
+      kind: "podcast";
+      variant: "link";
+      title: string;
+      excerpt: string;
+      listenUrl: string;
+    }
   | null;
+
+const PODCAST_HUB_FALLBACK_IMAGE = img(
+  "/images/group photo 1 (1)_1761008519000.jpg",
+);
+const PODCAST_HUB_FALLBACK_AVATAR = img(
+  "/images/david hargrove head shot_1761004385331.jpg",
+);
 
 export default function ContentHubSection() {
   const [modal, setModal] = useState<ModalState>(null);
+  const [rssHubItems, setRssHubItems] = useState<PodcastEpisode[]>([]);
+  const [rssHubChannel, setRssHubChannel] = useState<string | undefined>();
+  const [rssHubActive, setRssHubActive] = useState(false);
 
   const closeModal = useCallback(() => setModal(null), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/podcast-feed?limit=1")
+      .then((res) => res.json() as Promise<PodcastFeedResult>)
+      .then((data) => {
+        if (cancelled) return;
+        if (data.configured && data.items.length > 0) {
+          setRssHubItems(data.items.slice(0, 1));
+          setRssHubChannel(data.channelTitle);
+          setRssHubActive(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setRssHubActive(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!modal) return;
@@ -258,61 +283,150 @@ export default function ContentHubSection() {
               Conversations on risk, protection, and peace of mind.
             </p>
             <ul className="mt-8 space-y-8">
-              {PODCAST_ITEMS.map((p) => (
-                <li key={p.title}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setModal({
-                        kind: "podcast",
-                        embedUrl: p.spotifyEmbedUrl,
-                        title: p.title,
-                      })
-                    }
-                    className="w-full text-left"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
+              {/* Always show first static podcast */}
+              <li key={INSURANCE_PODCASTS_HOME[0].id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const firstPodcast = INSURANCE_PODCASTS_HOME[0];
+                    const hasAudio =
+                      firstPodcast.audioUrl &&
+                      firstPodcast.audioUrl.trim().length > 0;
+                    setModal(
+                      hasAudio
+                        ? {
+                            kind: "podcast",
+                            variant: "rss",
+                            title: firstPodcast.title,
+                            excerpt: firstPodcast.excerpt,
+                            audioUrl: firstPodcast.audioUrl!,
+                          }
+                        : {
+                            kind: "podcast",
+                            variant: "link",
+                            title: firstPodcast.title,
+                            excerpt: firstPodcast.excerpt,
+                            listenUrl: firstPodcast.listenUrl,
+                          },
+                    );
+                  }}
+                  className="w-full text-left"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
+                    <Image
+                      src={INSURANCE_PODCASTS_HOME[0].image}
+                      alt=""
+                      fill
+                      className="object-cover transition duration-300 hover:scale-[1.02]"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                    />
+                    <div
+                      className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20"
+                      aria-hidden
+                    />
+                    <span
+                      className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[var(--navy)] shadow-md"
+                      aria-hidden
+                    >
+                      <ArrowUpRight className="h-5 w-5" />
+                    </span>
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-[var(--navy)]">
+                    {INSURANCE_PODCASTS_HOME[0].title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--slate)]">
+                    {INSURANCE_PODCASTS_HOME[0].excerpt}
+                  </p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-white">
                       <Image
-                        src={p.image}
+                        src={INSURANCE_PODCASTS_HOME[0].avatar}
                         alt=""
                         fill
-                        className="object-cover transition duration-300 hover:scale-[1.02]"
-                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover"
+                        sizes="36px"
                       />
-                      <div
-                        className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20"
-                        aria-hidden
-                      />
-                      <span
-                        className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[var(--navy)] shadow-md"
-                        aria-hidden
-                      >
-                        <ArrowUpRight className="h-5 w-5" />
-                      </span>
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold text-[var(--navy)]">
-                      {p.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--slate)]">
-                      {p.excerpt}
+                    <p className="text-xs font-semibold text-[var(--navy)]">
+                      {INSURANCE_PODCASTS_HOME[0].authorName},{" "}
+                      {INSURANCE_PODCASTS_HOME[0].authorSubtitle}
                     </p>
-                    <div className="mt-4 flex items-center gap-3">
-                      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-white">
-                        <Image
-                          src={p.avatar}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="36px"
-                        />
-                      </div>
-                      <p className="text-xs font-semibold text-[var(--navy)]">
-                        {p.author}
-                      </p>
-                    </div>
-                  </button>
-                </li>
-              ))}
+                  </div>
+                </button>
+              </li>
+
+              {/* Show one RSS episode if available */}
+              {rssHubActive &&
+                rssHubItems.map((p) => {
+                  const cover = p.imageUrl ?? PODCAST_HUB_FALLBACK_IMAGE;
+                  const local = cover.startsWith("/");
+                  return (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setModal({
+                            kind: "podcast",
+                            variant: "rss",
+                            title: p.title,
+                            excerpt: p.excerpt,
+                            audioUrl: p.audioUrl,
+                          })
+                        }
+                        className="w-full text-left"
+                      >
+                        <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
+                          {local ? (
+                            <Image
+                              src={cover}
+                              alt=""
+                              fill
+                              className="object-cover transition duration-300 hover:scale-[1.02]"
+                              sizes="(max-width: 1024px) 100vw, 33vw"
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element -- RSS artwork
+                            <img
+                              src={cover}
+                              alt=""
+                              className="absolute inset-0 h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
+                            />
+                          )}
+                          <div
+                            className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20"
+                            aria-hidden
+                          />
+                          <span
+                            className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[var(--navy)] shadow-md"
+                            aria-hidden
+                          >
+                            <ArrowUpRight className="h-5 w-5" />
+                          </span>
+                        </div>
+                        <h3 className="mt-4 text-lg font-semibold text-[var(--navy)]">
+                          {p.title}
+                        </h3>
+                        <p className="mt-2 text-sm leading-relaxed text-[var(--slate)]">
+                          {p.excerpt}
+                        </p>
+                        <div className="mt-4 flex items-center gap-3">
+                          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-white">
+                            <Image
+                              src={PODCAST_HUB_FALLBACK_AVATAR}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              sizes="36px"
+                            />
+                          </div>
+                          <p className="text-xs font-semibold text-[var(--navy)]">
+                            {p.showTitle ?? rssHubChannel ?? "Podcast"}
+                          </p>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
             </ul>
             <Link
               href="/podcast"
@@ -339,8 +453,8 @@ export default function ContentHubSection() {
           />
           <div
             className={cn(
-              "relative z-10 w-full max-w-3xl overflow-hidden rounded-xl bg-black shadow-2xl",
-              modal.kind === "podcast" ? "max-w-md" : "",
+              "relative z-10 w-full max-w-3xl overflow-hidden rounded-xl shadow-2xl",
+              modal.kind === "podcast" ? "max-w-lg bg-white" : "bg-black",
             )}
           >
             <div className="flex items-center justify-between gap-4 bg-[var(--navy-dark)] px-4 py-3 text-left text-sm font-semibold text-white">
@@ -355,8 +469,10 @@ export default function ContentHubSection() {
             </div>
             <div
               className={cn(
-                "relative w-full bg-black",
-                modal.kind === "video" ? "aspect-video" : "h-[min(90dvh,420px)] sm:h-[380px]",
+                "relative w-full",
+                modal.kind === "video"
+                  ? "aspect-video bg-black"
+                  : "px-6 py-6 sm:px-8 sm:py-8",
               )}
             >
               {modal.kind === "video" ? (
@@ -367,15 +483,35 @@ export default function ContentHubSection() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              ) : (
-                <iframe
-                  title={modal.title}
-                  src={modal.embedUrl}
-                  className="absolute inset-0 h-full w-full border-0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                />
-              )}
+              ) : modal.kind === "podcast" && modal.variant === "rss" ? (
+                <div className="space-y-4 text-[var(--navy)]">
+                  <p className="text-sm leading-relaxed text-[var(--slate)]">
+                    {modal.excerpt}
+                  </p>
+                  <audio
+                    controls
+                    autoPlay
+                    src={modal.audioUrl}
+                    className="w-full"
+                  >
+                    Your browser does not support audio playback.
+                  </audio>
+                </div>
+              ) : modal.kind === "podcast" && modal.variant === "link" ? (
+                <div className="space-y-4 text-[var(--navy)]">
+                  <p className="text-sm leading-relaxed text-[var(--slate)]">
+                    {modal.excerpt}
+                  </p>
+                  <a
+                    href={modal.listenUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+                  >
+                    Listen in your podcast app
+                  </a>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

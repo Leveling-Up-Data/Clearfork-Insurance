@@ -5,6 +5,8 @@ import { createContext, useContext, type ReactNode } from "react";
 export interface QuoteAssistantContextType {
   askQuestion: (question: string, description?: string) => void;
   openAssistant: () => void;
+  /** Pushes field help text into the assistant panel (e.g. from form tooltips). */
+  showFieldHelp: (fieldLabel: string, helpText: string) => void;
 }
 
 const QuoteAssistantContext = createContext<QuoteAssistantContextType | null>(null);
