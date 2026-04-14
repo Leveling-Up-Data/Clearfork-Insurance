@@ -1,3 +1,11 @@
+---
+title: "So You Received an Inspection on Your New Homeowners Policy"
+date: "2026-04-14"
+published: true
+author: "David Hargrove"
+slug: "inspection-blog"
+---
+
 So You Received an Inspection on Your New Homeowners Policy
 A guide for Texas homeowners — and anyone shopping for coverage
 Most homeowners assume that once they have insurance, the hard part is over. But a property inspection can upend your coverage, cancel your policy, or quietly raise your premiums — all without much warning. Whether you’re shopping for a new carrier or simply renewing, understanding how inspections work is one of the most important things you can do to protect your home and your budget.
