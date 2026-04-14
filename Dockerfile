@@ -7,6 +7,8 @@ RUN npm ci --omit=dev
 
 FROM base AS build
 WORKDIR /app
+ARG NEXT_PUBLIC_GA_ID
+ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
