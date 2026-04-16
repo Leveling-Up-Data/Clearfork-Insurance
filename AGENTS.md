@@ -155,7 +155,17 @@ gcloud run deploy clearfork-insurance \
 - Dynamic sitemap.xml and robots.txt
 - RSS feed at /blog/rss.xml (permanent redirects from `/blogs` and `/blogs/*`)
 - Per-page metadata with Open Graph and Twitter cards
-- GA4 via NEXT_PUBLIC_GA_ID env var
+- GA4 via `NEXT_PUBLIC_GA_ID` (gtag) in root `layout.tsx`; Google Tag Manager container `GTM-TWSK72C5` is also loaded there
+- Search Console: `GOOGLE_SITE_VERIFICATION` in root metadata
+
+### Google Analytics MCP (Cursor — SEO / traffic analysis)
+
+To ask an agent questions about **GA4 traffic, landing pages, and conversions** (complements on-site SEO in this repo), add a **Model Context Protocol** server in **Cursor user MCP settings** (not committed here). Google publishes an experimental server that talks to the **Analytics Data API**:
+
+- Repository: https://github.com/googleanalytics/google-analytics-mcp
+- You need a GA4 **property**, Google Cloud project with **Google Analytics Data API** enabled, and **OAuth** or a **service account** granted access to that property. Follow the repo README for `mcpServers` config (command, env vars such as property ID / credentials path).
+
+Search Console performance (queries, clicks) uses a **different** API; pair GA MCP with GSC tools or exports if you need query-level SEO data.
 
 ## Brand
 
