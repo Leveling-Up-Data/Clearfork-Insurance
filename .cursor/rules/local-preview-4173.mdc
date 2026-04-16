@@ -1,0 +1,16 @@
+---
+description: Use port 4173 local production script when user wants local build or run locally
+alwaysApply: true
+---
+
+# Local build and run (port 4173)
+
+When the user asks for any of the following — or clearly means the same thing — run the project **locally as a production build** on **port 4173**, not the default dev server on 3000:
+
+- "local build", "build locally", "run locally", "run it locally", "local preview", "preview locally", "serve locally" (production-style)
+
+**Command (run from repo root):** `npm run run:local`
+
+This runs `scripts/run-local-4173.sh`, which frees **4173** if something is already listening, runs `node scripts/next-build-with-progress.mjs` (same as `next build`, plus **done/total** and **percent** when Next prints counts), then `next start -p 4173`. The app is at `http://localhost:4173`.
+
+For **development** with hot reload on port 3000, use `npm run dev` instead — only when the user explicitly wants dev mode or port 3000.

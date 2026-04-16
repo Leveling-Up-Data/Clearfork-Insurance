@@ -7,6 +7,8 @@ npm install
 npm run dev        # dev server on :3000
 npm run build      # production build (standalone)
 npx next start     # serve production build
+npm run run:local  # production build + serve on :4173 (frees port if in use); use for "local build" / run locally (preview)
+npm run build:progress  # same as next build, prints [build progress] done/total (%) when Next emits counts
 ```
 
 ## Environment Variables

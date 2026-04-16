@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:progress": "node scripts/next-build-with-progress.mjs",
     "start": "next start",
     "lint": "eslint",
-    "compile:blog-md": "node scripts/compile-blog-markdown.mjs"
+    "compile:blog-md": "node scripts/compile-blog-markdown.mjs",
+    "run:local": "bash scripts/run-local-4173.sh"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -41,7 +43,6 @@
     "react-markdown": "^10.1.0",
     "reading-time": "^1.5.0",
     "rss": "^1.2.2",
-    "rss-parser": "^3.13.0",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"
   },

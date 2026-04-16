@@ -1,4 +1,8 @@
-import Parser from "rss-parser";
+import {
+  parseRssFeedFromUrl,
+  type ParsedRssFeed,
+  type RssItem,
+} from "@/lib/rss-parse-minimal";
 import type { PodcastEpisode, PodcastFeedResult } from "@/types/podcast-feed";
 
 export type { PodcastEpisode, PodcastFeedResult } from "@/types/podcast-feed";
@@ -52,25 +56,19 @@ function stripHtml(raw: string): string {
     .trim();
 }
 
-function audioUrlFromItem(item: Parser.Item): string | undefined {
+function audioUrlFromItem(item: RssItem): string | undefined {
   return item.enclosure?.url ?? undefined;
 }
 
-function itunesImageHref(item: Parser.Item): string | undefined {
-  const itunes = (
-    item as Parser.Item & {
-      itunes?: { image?: string | { $?: { href?: string } } };
-    }
-  ).itunes;
+function itunesImageHref(item: RssItem): string | undefined {
+  const itunes = item.itunes;
   const img = itunes?.image;
   if (typeof img === "string") return img;
   const href = img && typeof img === "object" ? img.$?.href : undefined;
   return href;
 }
 
-function channelImageFromFeed(
-  feed: Parser.Output<Record<string, unknown>>,
-): string | undefined {
+function channelImageFromFeed(feed: ParsedRssFeed): string | undefined {
   const itunes = feed.itunes as
     | { image?: string | { $?: { href?: string } } }
     | undefined;
@@ -79,7 +77,7 @@ function channelImageFromFeed(
   return img && typeof img === "object" ? img.$?.href : undefined;
 }
 
-function itemId(item: Parser.Item, index: number): string {
+function itemId(item: RssItem, index: number): string {
   if (typeof item.guid === "string" && item.guid) return item.guid;
   if (item.guid && typeof item.guid === "object" && "value" in item.guid) {
     const v = (item.guid as { value?: string }).value;
@@ -95,19 +93,15 @@ function pubTime(isoOrRfc?: string): number {
   return Number.isFinite(t) ? t : 0;
 }
 
-function itunesEpisodeNumber(item: Parser.Item): string | undefined {
-  const it = (item as Parser.Item & { itunes?: { episode?: string | number } })
-    .itunes;
+function itunesEpisodeNumber(item: RssItem): string | undefined {
+  const it = item.itunes;
   const e = it?.episode;
   if (e === undefined || e === null) return undefined;
   return String(e).trim();
 }
 
 /** Hide a specific episode from RSS lists; the next-newest items fill the cap instead. */
-function shouldExcludeRssItem(
-  item: Parser.Item,
-  displayTitle: string,
-): boolean {
+function shouldExcludeRssItem(item: RssItem, displayTitle: string): boolean {
   const ep = itunesEpisodeNumber(item);
   if (ep === "39" || ep === "039") return true;
 
@@ -125,15 +119,15 @@ export async function fetchPodcastEpisodes(
   feedUrl: string,
   limit: number,
 ): Promise<Omit<PodcastFeedResult, "configured">> {
-  const parser = new Parser();
-  const feed = await parser.parseURL(feedUrl);
+  const feed = await parseRssFeedFromUrl(feedUrl);
 
   const channelTitle = feed.title ?? undefined;
   const channelImage = channelImageFromFeed(feed);
+  const feedItems = feed.items ?? [];
 
   const items: PodcastEpisode[] = [];
-  for (let i = 0; i < (feed.items?.length ?? 0) && items.length < limit; i++) {
-    const item = feed.items[i];
+  for (let i = 0; i < feedItems.length && items.length < limit; i++) {
+    const item = feedItems[i];
     const audioUrl = audioUrlFromItem(item);
     if (!audioUrl) continue;
 
