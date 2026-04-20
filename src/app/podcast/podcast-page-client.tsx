@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Headphones } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowUpRight, ChevronRight, Headphones, Podcast } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import type { InsurancePodcastShowcase } from "@/data/insurance-podcasts";
+import { TEXAS_INSURANCE_PODCAST_FEATURED } from "@/data/texas-insurance-podcast-featured";
 import type { PodcastEpisode } from "@/types/podcast-feed";
 
 const imgFallbackCover = encodeURI(
@@ -81,6 +83,123 @@ function RssEpisodeCard({
         />
       </div>
     </article>
+  );
+}
+
+function TexasFeaturedPodcastCard() {
+  const d = TEXAS_INSURANCE_PODCAST_FEATURED;
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const closeModal = useCallback(() => setModalOpen(false), []);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") closeModal();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [modalOpen, closeModal]);
+
+  return (
+    <>
+      <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          className="block w-full text-left transition-colors hover:bg-muted/30"
+        >
+          <div className="relative h-[220px] overflow-hidden">
+            <Image
+              src={d.image}
+              alt=""
+              fill
+              className="object-cover transition duration-300 hover:scale-[1.02]"
+              sizes="(max-width: 1024px) 100vw, 33vw"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20"
+              aria-hidden
+            />
+            <span
+              className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[var(--navy)] shadow-md"
+              aria-hidden
+            >
+              <ArrowUpRight className="h-5 w-5" />
+            </span>
+          </div>
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-foreground">{d.title}</h2>
+            <p className="mt-2 line-clamp-3 text-[15px] leading-[22px] text-muted-foreground">
+              {d.excerpt}
+            </p>
+            <div className="mt-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Podcast className="h-5 w-5" strokeWidth={2} aria-hidden />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  {d.authorName}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {d.authorSubtitle}
+                </div>
+              </div>
+            </div>
+          </div>
+        </button>
+      </article>
+
+      {modalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={d.title}
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/70"
+            aria-label="Close dialog"
+            onClick={closeModal}
+          />
+          <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between gap-4 bg-[var(--navy-dark)] px-4 py-3 text-left text-sm font-semibold text-white">
+              <span className="truncate">{d.title}</span>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="shrink-0 rounded-md px-2 py-1 text-white/90 hover:bg-white/10"
+              >
+                Close
+              </button>
+            </div>
+            <div className="relative w-full px-6 py-6 sm:px-8 sm:py-8">
+              <div className="space-y-4 text-[var(--navy)]">
+                <p className="text-sm leading-relaxed text-[var(--slate)]">
+                  {d.excerpt}
+                </p>
+                <iframe
+                  title={d.title}
+                  src={d.spotifyEmbedSrc}
+                  className="h-[352px] w-full max-w-full rounded-lg border-0 bg-black"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                />
+                <a
+                  href={d.episodePageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Open episode on Spotify for Creators
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -179,11 +298,7 @@ function StaticPodcastCard({ item }: { item: InsurancePodcastShowcase }) {
 export type PodcastPageClientProps =
   | { mode: "rss"; episodes: PodcastEpisode[]; channelTitle?: string }
   | { mode: "static"; items: InsurancePodcastShowcase[] }
-  | {
-      mode: "hybrid";
-      firstItem: InsurancePodcastShowcase;
-      rssEpisodes: PodcastEpisode[];
-    };
+  | { mode: "hybrid"; firstItem: InsurancePodcastShowcase };
 
 export function PodcastPageClient(props: PodcastPageClientProps) {
   return (
@@ -216,7 +331,8 @@ export function PodcastPageClient(props: PodcastPageClientProps) {
             </p>
           ) : props.mode === "hybrid" ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              Featured podcast with latest episodes from our partners.
+              Featured episode from our team and the Texas Department of
+              Insurance.
             </p>
           ) : null}
           {props.mode === "rss" && props.episodes.length === 0 ? (
@@ -253,9 +369,7 @@ export function PodcastPageClient(props: PodcastPageClientProps) {
                 key={props.firstItem.id}
                 item={props.firstItem}
               />
-              {props.rssEpisodes.map((item) => (
-                <RssEpisodeCard key={item.id} item={item} />
-              ))}
+              <TexasFeaturedPodcastCard />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">

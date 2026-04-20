@@ -18,5 +18,16 @@ else
   echo "Port $PORT is free."
 fi
 
-node scripts/next-build-with-progress.mjs
+if [[ "${FORCE_BUILD:-0}" == "1" ]]; then
+  echo "FORCE_BUILD=1, running production build..."
+  node scripts/next-build-with-progress.mjs
+elif [[ "${SKIP_BUILD:-0}" == "1" ]]; then
+  echo "SKIP_BUILD=1, skipping build and reusing current .next output."
+elif [[ -f ".next/BUILD_ID" ]]; then
+  echo "Found existing .next build, skipping rebuild for faster startup."
+else
+  echo "No existing .next build found, running production build..."
+  node scripts/next-build-with-progress.mjs
+fi
+
 exec npx next start -p "$PORT"

@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "compile:blog-md": "node scripts/compile-blog-markdown.mjs",
-    "run:local": "bash scripts/run-local-4173.sh"
+    "run:local": "bash scripts/run-local-4173.sh",
+    "run:local:fast": "SKIP_BUILD=1 bash scripts/run-local-4173.sh",
+    "run:local:rebuild": "FORCE_BUILD=1 bash scripts/run-local-4173.sh"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

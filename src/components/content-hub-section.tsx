@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Podcast } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { cn } from "@/lib/utils";
 import { INSURANCE_PODCASTS_HOME } from "@/data/insurance-podcasts";
-import type { PodcastEpisode, PodcastFeedResult } from "@/types/podcast-feed";
+import { TEXAS_INSURANCE_PODCAST_FEATURED } from "@/data/texas-insurance-podcast-featured";
 
 const img = (path: string) => encodeURI(path);
 
@@ -89,42 +89,21 @@ type ModalState =
       excerpt: string;
       listenUrl: string;
     }
+  | {
+      kind: "podcast";
+      variant: "spotify";
+      title: string;
+      excerpt: string;
+      /** `https://open.spotify.com/embed/episode/{id}` */
+      embedSrc: string;
+      episodePageUrl: string;
+    }
   | null;
-
-const PODCAST_HUB_FALLBACK_IMAGE = img(
-  "/images/group photo 1 (1)_1761008519000.jpg",
-);
-const PODCAST_HUB_FALLBACK_AVATAR = img(
-  "/images/david hargrove head shot_1761004385331.jpg",
-);
 
 export default function ContentHubSection() {
   const [modal, setModal] = useState<ModalState>(null);
-  const [rssHubItems, setRssHubItems] = useState<PodcastEpisode[]>([]);
-  const [rssHubChannel, setRssHubChannel] = useState<string | undefined>();
-  const [rssHubActive, setRssHubActive] = useState(false);
 
   const closeModal = useCallback(() => setModal(null), []);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/podcast-feed?limit=1")
-      .then((res) => res.json() as Promise<PodcastFeedResult>)
-      .then((data) => {
-        if (cancelled) return;
-        if (data.configured && data.items.length > 0) {
-          setRssHubItems(data.items.slice(0, 1));
-          setRssHubChannel(data.channelTitle);
-          setRssHubActive(true);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setRssHubActive(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (!modal) return;
@@ -355,78 +334,65 @@ export default function ContentHubSection() {
                 </button>
               </li>
 
-              {/* Show one RSS episode if available */}
-              {rssHubActive &&
-                rssHubItems.map((p) => {
-                  const cover = p.imageUrl ?? PODCAST_HUB_FALLBACK_IMAGE;
-                  const local = cover.startsWith("/");
-                  return (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setModal({
-                            kind: "podcast",
-                            variant: "rss",
-                            title: p.title,
-                            excerpt: p.excerpt,
-                            audioUrl: p.audioUrl,
-                          })
-                        }
-                        className="w-full text-left"
-                      >
-                        <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
-                          {local ? (
-                            <Image
-                              src={cover}
-                              alt=""
-                              fill
-                              className="object-cover transition duration-300 hover:scale-[1.02]"
-                              sizes="(max-width: 1024px) 100vw, 33vw"
-                            />
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element -- RSS artwork
-                            <img
-                              src={cover}
-                              alt=""
-                              className="absolute inset-0 h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
-                            />
-                          )}
-                          <div
-                            className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20"
-                            aria-hidden
-                          />
-                          <span
-                            className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[var(--navy)] shadow-md"
-                            aria-hidden
-                          >
-                            <ArrowUpRight className="h-5 w-5" />
-                          </span>
-                        </div>
-                        <h3 className="mt-4 text-lg font-semibold text-[var(--navy)]">
-                          {p.title}
-                        </h3>
-                        <p className="mt-2 text-sm leading-relaxed text-[var(--slate)]">
-                          {p.excerpt}
-                        </p>
-                        <div className="mt-4 flex items-center gap-3">
-                          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-white">
-                            <Image
-                              src={PODCAST_HUB_FALLBACK_AVATAR}
-                              alt=""
-                              fill
-                              className="object-cover"
-                              sizes="36px"
-                            />
-                          </div>
-                          <p className="text-xs font-semibold text-[var(--navy)]">
-                            {p.showTitle ?? rssHubChannel ?? "Podcast"}
-                          </p>
-                        </div>
-                      </button>
-                    </li>
-                  );
-                })}
+              <li key="texas-insurance-podcast-hub">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setModal({
+                      kind: "podcast",
+                      variant: "spotify",
+                      title: TEXAS_INSURANCE_PODCAST_FEATURED.title,
+                      excerpt: TEXAS_INSURANCE_PODCAST_FEATURED.excerpt,
+                      embedSrc: TEXAS_INSURANCE_PODCAST_FEATURED.spotifyEmbedSrc,
+                      episodePageUrl:
+                        TEXAS_INSURANCE_PODCAST_FEATURED.episodePageUrl,
+                    })
+                  }
+                  className="w-full text-left"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
+                    <Image
+                      src={TEXAS_INSURANCE_PODCAST_FEATURED.image}
+                      alt=""
+                      fill
+                      className="object-cover transition duration-300 hover:scale-[1.02]"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                    />
+                    <div
+                      className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20"
+                      aria-hidden
+                    />
+                    <span
+                      className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[var(--navy)] shadow-md"
+                      aria-hidden
+                    >
+                      <ArrowUpRight className="h-5 w-5" />
+                    </span>
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-[var(--navy)]">
+                    {TEXAS_INSURANCE_PODCAST_FEATURED.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[var(--slate)]">
+                    {TEXAS_INSURANCE_PODCAST_FEATURED.excerpt}
+                  </p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <div
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground ring-2 ring-white"
+                      aria-hidden
+                    >
+                      <Podcast className="h-4 w-4" strokeWidth={2} />
+                    </div>
+                    <div className="text-xs">
+                      <p className="font-semibold text-[var(--navy)]">
+                        {TEXAS_INSURANCE_PODCAST_FEATURED.authorName}
+                      </p>
+                      <p className="text-[var(--slate)]">
+                        {TEXAS_INSURANCE_PODCAST_FEATURED.authorSubtitle}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </li>
             </ul>
             <Link
               href="/podcast"
@@ -509,6 +475,27 @@ export default function ContentHubSection() {
                     className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                   >
                     Listen in your podcast app
+                  </a>
+                </div>
+              ) : modal.kind === "podcast" && modal.variant === "spotify" ? (
+                <div className="space-y-4 text-[var(--navy)]">
+                  <p className="text-sm leading-relaxed text-[var(--slate)]">
+                    {modal.excerpt}
+                  </p>
+                  <iframe
+                    title={modal.title}
+                    src={modal.embedSrc}
+                    className="h-[352px] w-full max-w-full rounded-lg border-0 bg-black"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                  />
+                  <a
+                    href={modal.episodePageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Open episode on Spotify for Creators
                   </a>
                 </div>
               ) : null}

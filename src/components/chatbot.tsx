@@ -26,7 +26,7 @@ const SUGGESTIONS = [
 function fallbackReply(text: string): string | null {
   const t = text.trim().toLowerCase();
   if (/^(hi|hello|hey)([!.?,\s]|$)/i.test(t) || /^(hi|hello|hey)$/i.test(t)) {
-    return "Hello! I’m Clearbot. How can I help you with insurance questions today?";
+    return "Hello! I’m Starfish. How can I help you with insurance questions today?";
   }
   if (/\b(thanks?|thank you)\b/.test(t)) {
     return "You’re welcome! Let me know if you need anything else.";
@@ -46,7 +46,7 @@ export function Chatbot() {
     {
       id: "welcome",
       role: "bot",
-      text: "Hi! I’m Clearbot. Ask me about Clearfork Insurance or tap a suggestion below.",
+      text: "Hi! I’m Starfish. Ask me about Clearfork Insurance or tap a suggestion below.",
     },
   ]);
   const listRef = useRef<HTMLDivElement>(null);
@@ -145,10 +145,10 @@ export function Chatbot() {
           className="fixed bottom-24 right-6 z-[1000] flex w-[min(100vw-2rem,396px)] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
           style={{ height: 500, maxHeight: "min(500px, calc(100vh - 8rem))" }}
           role="dialog"
-          aria-label="Clearbot chat"
+          aria-label="Starfish chat"
         >
           <div className="flex items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
-            <span className="text-sm font-semibold">Clearbot</span>
+            <span className="text-sm font-semibold">Starfish</span>
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -240,7 +240,7 @@ export function Chatbot() {
               Powered by
             </span>
             <a
-              href="https://starfishhealth.app"
+              href="https://getstarfish.app"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1"
@@ -248,9 +248,9 @@ export function Chatbot() {
               <Image
                 src="/images/getStarfish.svg"
                 alt="Starfish"
-                width={72}
-                height={20}
-                className="h-4 w-auto"
+                width={216}
+                height={60}
+                className="h-12 w-auto"
               />
             </a>
           </div>
